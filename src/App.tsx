@@ -19,6 +19,24 @@ import {
   type ExecutionStep,
 } from "./data";
 
+// ─── TYPES & PAGES ────────────────────────────────────────────────────────────
+
+type PageId = "brief" | "implementation" | "circuit-lab" | "literature";
+
+interface NavPage {
+  id: PageId;
+  label: string;
+  icon: string;
+  tagline: string;
+}
+
+const PAGES: NavPage[] = [
+  { id: "brief", label: "Research Brief", icon: "🔬", tagline: "Scientific Ethos, Mathematical Models & Roadmap" },
+  { id: "implementation", label: "Implementation Blueprint", icon: "🚀", tagline: "Step-by-Step Practical Execution & Code" },
+  { id: "circuit-lab", label: "Circuit & Hardware Lab", icon: "⚡", tagline: "Live Oscilloscope, 6 Bench Tests & BOM" },
+  { id: "literature", label: "Literature & Patents", icon: "📚", tagline: "Decision Matrix & 70-Year Prior Art Dossier" },
+];
+
 // ─── SCROLL PROGRESS ──────────────────────────────────────────────────────────
 
 function ScrollProgress() {
@@ -33,7 +51,7 @@ function ScrollProgress() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (
-    <div className="fixed top-0 left-0 right-0 h-[2px] z-[200] bg-[rgba(30,27,22,0.06)]">
+    <div className="fixed top-0 left-0 right-0 h-[2px] z-[300] bg-[rgba(30,27,22,0.06)]">
       <div
         className="h-full bg-[#2d6a4f] origin-left"
         style={{ transform: `scaleX(${pct})`, transition: "transform 0.08s linear" }}
@@ -96,7 +114,7 @@ function useRevealList() {
       ([entry]) => {
         if (entry.isIntersecting) {
           children.forEach((el, i) => {
-            (el as HTMLElement).style.setProperty("--stagger", `${i * 40}ms`);
+            (el as HTMLElement).style.setProperty("--stagger", `${i * 35}ms`);
             el.classList.add("in");
           });
           observer.disconnect();
@@ -156,56 +174,62 @@ function Label({ children }: { children: React.ReactNode }) {
   return <span className="data text-[9px] tracking-widest text-[#8a867e] uppercase font-semibold">{children}</span>;
 }
 
-// ─── SPINE NAVIGATION ─────────────────────────────────────────────────────────
+// ─── TOP GLOBAL NAVIGATION HEADER ─────────────────────────────────────────────
 
-function SpineNav({ active }: { active: string }) {
+function GlobalNavbar({ activePage, setActivePage }: { activePage: PageId; setActivePage: (p: PageId) => void }) {
   return (
-    <>
-      <nav className="hidden xl:flex fixed left-0 top-0 bottom-0 w-12 flex-col items-center justify-center border-r border-[rgba(30,27,22,0.08)] z-50 bg-[#f8f6f1]/90 backdrop-blur-xs">
-        <div className="flex flex-col gap-1">
-          {SECTIONS.map((s) => (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              title={s.label}
-              className={`flex items-center justify-center w-8 h-6 rounded transition-all group ${
-                active === s.id ? "bg-[#2d6a4f] shadow-xs" : "hover:bg-[rgba(30,27,22,0.06)]"
-              }`}
-            >
-              <span
-                className={`display text-[9px] italic transition-colors font-medium ${
-                  active === s.id ? "text-white" : "text-[#8a867e] group-hover:text-[#1e1b16]"
+    <header className="sticky top-0 z-[250] bg-[#f8f6f1]/95 backdrop-blur-md border-b border-[rgba(30,27,22,0.1)] px-4 sm:px-8 py-3">
+      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+        {/* Logo & Brand */}
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActivePage("brief")}>
+          <div className="w-8 h-8 rounded-lg bg-[#2d6a4f] text-white flex items-center justify-center font-display italic font-bold text-[14px] shadow-xs">
+            §
+          </div>
+          <div>
+            <div className="text-[13.5px] font-bold text-[#1e1b16] tracking-tight flex items-center gap-1.5">
+              <span>EEE × Urban Traffic</span>
+              <span className="text-[9px] data bg-[#d1ece0] text-[#1a5c36] px-1.5 py-0.2 rounded font-semibold uppercase">
+                Living Lab
+              </span>
+            </div>
+            <div className="text-[10.5px] text-[#8a867e]">Power-Electronic Circuits & Switching Networks</div>
+          </div>
+        </div>
+
+        {/* Navigation Tabs */}
+        <nav className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar">
+          {PAGES.map((page) => {
+            const isActive = activePage === page.id;
+            return (
+              <button
+                key={page.id}
+                onClick={() => {
+                  setActivePage(page.id);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-medium transition-all ${
+                  isActive
+                    ? "bg-[#1e1b16] text-white shadow-xs font-semibold"
+                    : "text-[#4a4640] hover:text-[#1e1b16] hover:bg-[#eae7df]/60"
                 }`}
               >
-                {s.marker}
-              </span>
-            </a>
-          ))}
-        </div>
-      </nav>
-
-      <nav className="xl:hidden fixed top-[2px] left-0 right-0 z-50 bg-[#f8f6f1]/95 backdrop-blur border-b border-[rgba(30,27,22,0.08)]">
-        <div className="flex gap-1 overflow-x-auto no-scrollbar px-3 py-2">
-          {SECTIONS.map((s) => (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              className={`flex-shrink-0 data text-[9px] px-2.5 py-1 rounded-full transition-all ${
-                active === s.id
-                  ? "bg-[#2d6a4f] text-white font-medium"
-                  : "text-[#8a867e] hover:text-[#1e1b16] hover:bg-[rgba(30,27,22,0.06)]"
-              }`}
-            >
-              {s.marker} {s.label}
-            </a>
-          ))}
-        </div>
-      </nav>
-    </>
+                <span>{page.icon}</span>
+                <span className="whitespace-nowrap">{page.label}</span>
+                {page.id === "implementation" && (
+                  <span className={`text-[8.5px] font-bold px-1.5 py-0.2 rounded-full ${isActive ? "bg-[#2d6a4f] text-white" : "bg-[#d1ece0] text-[#1a5c36]"}`}>
+                    Action Plan
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+    </header>
   );
 }
 
-// ─── §0 TITLE BLOCK & EXECUTIVE SUMMARY ───────────────────────────────────────
+// ─── PAGE 1: RESEARCH BRIEF & SCIENTIFIC WORKSPACE ────────────────────────────
 
 const STATS = [
   { n: 6, label: "candidate mappings scored", delay: 100 },
@@ -216,68 +240,146 @@ const STATS = [
   { n: 8, label: "canonical prior art citations", delay: 600 },
 ];
 
-function TitleBlock() {
+function ResearchBriefPage({ onNavigateToImplementation }: { onNavigateToImplementation: () => void }) {
   const ref = useReveal();
+  const listRef = useRevealList();
+
   return (
-    <section id="title" className="section-anchor border-b border-[rgba(30,27,22,0.08)]">
-      <div className="grid-bg px-6 sm:px-12 pt-10 pb-8">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
-          <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-sm bg-[#2d6a4f] flex items-center justify-center shadow-xs">
-              <span className="display text-[12px] italic text-white font-medium">§</span>
+    <div className="space-y-12 pb-16">
+      {/* Title Block */}
+      <section className="grid-bg px-6 sm:px-12 pt-10 pb-8 border-b border-[rgba(30,27,22,0.08)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-3">
+              <span className="data text-[10px] text-[#8a867e] tracking-widest block font-bold">
+                STAGE 0 · VALIDATION BRIEF · IEEE ITS × POWER ELECTRONICS
+              </span>
             </div>
-            <div>
-              <span className="data text-[10px] text-[#8a867e] tracking-widest block">DEEP RESEARCH WORKSPACE · IEEE ITS × POWER ELECTRONICS</span>
-              <span className="text-[11px] font-medium text-[#2d6a4f]">Power-Electronic Circuits & Switching Networks for Urban Traffic</span>
+            <div className="flex gap-4">
+              <button
+                onClick={onNavigateToImplementation}
+                className="bg-[#2d6a4f] hover:bg-[#23533e] text-white text-[12px] font-semibold px-4 py-2 rounded-xl transition-all shadow-xs flex items-center gap-1.5"
+              >
+                <span>🚀</span> View Implementation Plan →
+              </button>
             </div>
           </div>
-          <div className="flex gap-5">
-            {[["Scope", "Full 12-Section Plan"], ["Status", "Stage 0 Active"], ["Date", "2026-09-05"]].map(([k, v]) => (
-              <div key={k}>
-                <Label>{k}</Label>
-                <div className="data text-[10px] text-[#4a4640] mt-0.5">{v}</div>
+
+          <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal max-w-4xl">
+            <h1 className="display text-[34px] sm:text-[48px] lg:text-[54px] font-medium leading-[1.08] tracking-tight text-[#1e1b16]">
+              Power-Electronic Circuits & <em className="font-light">Switching Networks</em> as Physical Representations of Urban Traffic
+            </h1>
+            <p className="mt-5 text-[14px] sm:text-[15px] text-[#4a4640] leading-relaxed max-w-3xl">
+              Can an urban traffic system legitimately be modeled as a power-electronic circuit and switching network?
+              Grounded in scientific rigor and falsifiability (<em>"Try to break it, don't force success"</em>), this platform evaluates physical, functional, mathematical, and control analogies—rejecting passive resistor myths,
+              preserving Kirchhoff flow conservation, and introducing active semiconductor switching matrices with Finite-Control-Set MPC.
+            </p>
+          </div>
+
+          {/* Stat counters */}
+          <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 pt-6 border-t border-[rgba(30,27,22,0.08)]">
+            {STATS.map(({ n, label, delay }) => (
+              <div key={label}>
+                <div className="display text-[28px] sm:text-[32px] font-medium text-[#2d6a4f] tabular-nums">
+                  <AnimatedNumber target={n} delay={delay} />
+                </div>
+                <div className="text-[11px] text-[#8a867e] mt-0.5 leading-snug">{label}</div>
               </div>
             ))}
           </div>
         </div>
+      </section>
 
-        <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal max-w-4xl">
-          <h1 className="display text-[34px] sm:text-[48px] lg:text-[54px] font-medium leading-[1.08] tracking-tight text-[#1e1b16]">
-            Power-Electronic Circuits & <em className="font-light">Switching Networks</em> as Physical Representations of Urban Traffic
-          </h1>
-          <p className="mt-5 text-[14px] sm:text-[15px] text-[#4a4640] leading-relaxed max-w-3xl">
-            This research workspace investigates <strong>where and how components of an urban traffic system can legitimately be modeled as power-electronic circuits and switching networks</strong>.
-            Grounded in scientific rigor and falsifiability (<em>"Try to break it, don't force success"</em>), we evaluate physical, functional, mathematical, and control analogies—rejecting passive resistor myths,
-            preserving flow conservation laws, and introducing active semiconductor switching matrices with Finite-Control-Set Model Predictive Control (FCS-MPC).
-          </p>
-        </div>
+      {/* §1 Research Objectives & Falsifiability */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <SectionHeader
+          n="§1"
+          title="Research objectives & falsifiability criteria"
+          sub="The guiding mission: determine if physical power-electronic circuits can reproduce key traffic dynamics and yield useful new capabilities."
+        />
 
-        {/* Animated stat counters */}
-        <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 pt-6 border-t border-[rgba(30,27,22,0.08)]">
-          {STATS.map(({ n, label, delay }) => (
-            <div key={label}>
-              <div className="display text-[28px] sm:text-[32px] font-medium text-[#2d6a4f] tabular-nums">
-                <AnimatedNumber target={n} delay={delay} />
+        <div ref={listRef as React.RefObject<HTMLDivElement>} className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="reveal border border-[rgba(45,106,79,0.2)] rounded-2xl p-6 bg-[#d1ece0]/15 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2 h-2 rounded-full bg-[#2d6a4f]" />
+                <Label>Primary Scientific Objective</Label>
               </div>
-              <div className="text-[11px] text-[#8a867e] mt-0.5 leading-snug">{label}</div>
+              <h3 className="display text-[18px] font-medium text-[#1e1b16] mb-3">
+                Rigorous Mathematical & Physical Transformation
+              </h3>
+              <p className="text-[13px] text-[#332f28] leading-relaxed">
+                Identify which traffic components can legitimately be modeled as power-electronic circuits.
+                Establish whether there exists a <strong>mathematically rigorous transformation</strong> that yields new insights beyond conventional traffic models (CTM, Max-Pressure).
+              </p>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="mt-4 pt-3 border-t border-[rgba(45,106,79,0.15)] text-[11px] text-[#2d6a4f] font-mono">
+              Key Question: "Can a physical circuit reproduce key dynamics and yield useful information?"
+            </div>
+          </div>
 
-      <div className="px-6 sm:px-12 py-3 bg-[#fde8c8]/40 border-t border-[rgba(146,64,14,0.12)] flex items-start gap-3">
-        <span className="data text-[9px] text-[#92400e] tracking-widest mt-0.5 shrink-0 font-bold">ETHOS</span>
-        <p className="text-[12px] text-[#7c5a3a] leading-relaxed">
-          <strong>Scientific Rigor & Falsifiability:</strong> Every candidate mapping is explicitly tagged as <span className="bg-[#d1ece0] text-[#1a5c36] px-1.5 py-0.2 rounded font-mono text-[10px]">Source</span>, <span className="bg-[#dbeafe] text-[#1e3a8a] px-1.5 py-0.2 rounded font-mono text-[10px]">Hypothesis</span>, or <span className="bg-[#fde8c8] text-[#7c3811] px-1.5 py-0.2 rounded font-mono text-[10px]">Result</span>. We actively search for failure boundaries rather than forcing mathematical equivalence where travel costs curl is non-zero.
-        </p>
-      </div>
-    </section>
+          <div className="reveal border border-[rgba(30,27,22,0.1)] rounded-2xl p-6 bg-white flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2 h-2 rounded-full bg-[#b91c1c]" />
+                <Label>Falsification & Success Criteria</Label>
+              </div>
+              <h3 className="display text-[18px] font-medium text-[#1e1b16] mb-3">
+                Falsifiable Performance Gates
+              </h3>
+              <ul className="space-y-2 text-[12.5px] text-[#4a4640] leading-relaxed">
+                <li className="flex gap-2">
+                  <span className="text-[#2d6a4f] shrink-0">✓</span>
+                  <span><strong>Unit & Conservation Consistency:</strong> Preserves exact flow continuity (KCL).</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-[#2d6a4f] shrink-0">✓</span>
+                  <span><strong>Sim-to-Sim Error &lt; 15%:</strong> Analog circuit outputs must track microscopic SUMO queues within ±15% error and Pearson r &gt; 0.85.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-[#2d6a4f] shrink-0">✓</span>
+                  <span><strong>Zero Spurious Dynamics:</strong> The circuit must not produce artificial electrical resonances.</span>
+                </li>
+              </ul>
+            </div>
+            <div className="mt-4 pt-3 border-t border-[rgba(30,27,22,0.08)] text-[11px] text-[#8a867e] font-mono">
+              Rule: Reject any analogy with &gt; 30% persistent tracking divergence.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* §3 Dimensional Analysis & Interactive Scaler */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <DimensionalAnalysisSection />
+      </section>
+
+      {/* §4 Mathematical Models */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <MathematicalModelsSection />
+      </section>
+
+      {/* §10 Scientific Risk Register */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <RiskRegisterSection />
+      </section>
+
+      {/* §11 Roadmap & Budget */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <RoadmapAndBudgetSection />
+      </section>
+
+      {/* §12 Novelty Checklist */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <NoveltyChecklistSection />
+      </section>
+    </div>
   );
 }
 
-// ─── §EXEC EXECUTION BLUEPRINT & IMPLEMENTATION GUIDE ──────────────────────
+// ─── PAGE 2: DEDICATED IMPLEMENTATION & EXECUTION BLUEPRINT ───────────────────
 
-function ExecutionGuideSection() {
+function ImplementationPage({ onNavigateToLab }: { onNavigateToLab: () => void }) {
   const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
   const [copied, setCopied] = useState<boolean>(false);
   const ref = useReveal();
@@ -296,273 +398,299 @@ function ExecutionGuideSection() {
   };
 
   return (
-    <section id="execution-guide" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8]/30">
-      <SectionHeader
-        n="§EXEC"
-        title="Execution blueprint: How to implement this research step-by-step"
-        sub="A straightforward, zero-fluff engineering guide translating Deep Research 3 into immediate runnable software, SPICE netlists, $100 lab hardware, and publishable papers."
-      />
-
-      {/* Quick Summary Banner */}
-      <div className="bg-white border border-[rgba(45,106,79,0.2)] rounded-2xl p-5 mb-8 shadow-xs max-w-6xl">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#2d6a4f] text-white flex items-center justify-center font-mono font-bold text-[14px]">
-              ▶
-            </div>
-            <div>
-              <div className="text-[14px] font-semibold text-[#1e1b16]">The 5-Step Path from Concept to Working Demonstration</div>
-              <div className="text-[12px] text-[#8a867e]">Follow these sequential phases to replicate, validate, and build the physical traffic-circuit system.</div>
-            </div>
+    <div className="space-y-12 pb-16">
+      {/* Implementation Hero Banner */}
+      <section className="grid-bg px-6 sm:px-12 pt-10 pb-8 border-b border-[rgba(30,27,22,0.08)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 text-[10px] font-mono text-[#2d6a4f] uppercase tracking-wider font-bold mb-3">
+            <span>🚀 DEDICATED EXECUTION PLAYBOOK</span>
+            <span>·</span>
+            <span>FROM THEORY TO $100 LAB BENCH</span>
           </div>
-          <div className="flex items-center gap-2 font-mono text-[11px]">
-            <span className="bg-[#d1ece0] text-[#1a5c36] px-2.5 py-1 rounded-md font-bold">Total Cost: ~$120 USD</span>
-            <span className="bg-[#f2efe8] text-[#4a4640] px-2.5 py-1 rounded-md">Timeline: 2–6 Months</span>
-          </div>
-        </div>
-      </div>
 
-      {/* 5-Step Horizontal Tab Navigator */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-8 max-w-6xl">
-        {EXECUTION_STEPS.map((s, idx) => {
-          const isActive = activeStepIdx === idx;
-          return (
+          <h1 className="display text-[32px] sm:text-[46px] font-medium leading-tight text-[#1e1b16] max-w-4xl">
+            Implementation Blueprint & Research Action Plan
+          </h1>
+          <p className="mt-4 text-[14px] text-[#4a4640] leading-relaxed max-w-3xl">
+            This dedicated page contains everything required to replicate, code, validate, and physically build the power-electronic traffic emulator.
+            Follow these 5 sequential phases to move from a 10-minute Python simulation to a working $120 hardware benchtop demonstration.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-4 items-center">
+            <div className="data text-[12px] bg-white border border-[rgba(30,27,22,0.1)] px-4 py-2 rounded-xl text-[#1e1b16] font-bold shadow-xs">
+              💰 Total Hardware Budget: ~$120 USD
+            </div>
+            <div className="data text-[12px] bg-white border border-[rgba(30,27,22,0.1)] px-4 py-2 rounded-xl text-[#2d6a4f] font-bold shadow-xs">
+              ⏱ Duration: 2–6 Months (5 Phases)
+            </div>
             <button
-              key={s.stepNumber}
-              onClick={() => setActiveStepIdx(idx)}
-              className={`p-3.5 rounded-xl text-left transition-all border flex flex-col justify-between ${
-                isActive
-                  ? "bg-[#2d6a4f] border-[#2d6a4f] text-white shadow-sm ring-2 ring-[#2d6a4f]/20"
-                  : "bg-white border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:border-[rgba(30,27,22,0.2)] hover:bg-[#fcfbf9]"
-              }`}
+              onClick={onNavigateToLab}
+              className="bg-[#1e1b16] hover:bg-black text-white text-[12px] font-semibold px-4 py-2 rounded-xl transition-all shadow-xs flex items-center gap-1.5 ml-auto"
             >
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={`data text-[9px] font-bold uppercase tracking-wider ${isActive ? "text-[#d1ece0]" : "text-[#8a867e]"}`}>
-                    Step {s.stepNumber}
-                  </span>
-                  <span className={`data text-[8.5px] px-1.5 py-0.2 rounded font-semibold ${isActive ? "bg-white/20 text-white" : "bg-[#f2efe8] text-[#4a4640]"}`}>
-                    {s.timeframe}
-                  </span>
-                </div>
-                <div className={`text-[12px] font-semibold leading-snug line-clamp-2 ${isActive ? "text-white" : "text-[#1e1b16]"}`}>
-                  {s.title.split("(")[0]}
-                </div>
-              </div>
-              <div className={`text-[10px] mt-2 font-mono ${isActive ? "text-white/80" : "text-[#2d6a4f] font-semibold"}`}>
-                {s.costEstimate.split("(")[0]}
-              </div>
+              <span>⚡</span> Open Oscilloscope & Lab Bench →
             </button>
-          );
-        })}
-      </div>
-
-      {/* Active Step Deep Card */}
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal border border-[rgba(30,27,22,0.12)] rounded-2xl p-6 sm:p-8 bg-white shadow-sm max-w-6xl space-y-6">
-        {/* Step Header */}
-        <div className="flex flex-wrap items-baseline justify-between gap-3 pb-4 border-b border-[rgba(30,27,22,0.08)]">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="data text-[10px] text-[#2d6a4f] font-bold bg-[#d1ece0] px-2 py-0.5 rounded">
-                {step.badge}
-              </span>
-              <span className={`data text-[10px] font-semibold px-2 py-0.5 rounded ${difficultyCls(step.difficulty)}`}>
-                {step.difficulty}
-              </span>
-              <span className="data text-[10px] text-[#8a867e]">
-                Est. Duration: <strong>{step.timeframe}</strong>
-              </span>
-            </div>
-            <h3 className="display text-[22px] font-medium text-[#1e1b16] mt-1">
-              Step {step.stepNumber}: {step.title}
-            </h3>
-          </div>
-          <div className="data text-[12px] bg-[#f8f6f1] border border-[rgba(30,27,22,0.08)] px-3.5 py-1.5 rounded-lg text-[#1e1b16] font-bold">
-            Budget: {step.costEstimate}
           </div>
         </div>
+      </section>
 
-        {/* Plain-English Overview */}
-        <div className="bg-[#f8f6f1] p-4 rounded-xl border border-[rgba(30,27,22,0.06)] text-[13px] text-[#2c2822] leading-relaxed">
-          <strong className="text-[#2d6a4f]">Plain-English Mission:</strong> {step.summary}
-        </div>
-
-        {/* Actionable Steps & Code/Command Columns */}
-        <div className="grid lg:grid-cols-[1fr_1.1fr] gap-6">
-          {/* Left: Actionable Checklist */}
-          <div className="space-y-4">
-            <div>
-              <Label>How to execute this step (Checklist)</Label>
-              <div className="space-y-2.5 mt-2">
-                {step.howToStart.map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-3 text-[12.5px] bg-[#fcfbf9] p-3 rounded-xl border border-[rgba(30,27,22,0.06)] text-[#332f28] leading-relaxed">
-                    <span className="w-5 h-5 rounded-full bg-[#2d6a4f] text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
-                      {idx + 1}
+      {/* Main Execution Wizard */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto space-y-8">
+        {/* 5-Phase Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {EXECUTION_STEPS.map((s, idx) => {
+            const isActive = activeStepIdx === idx;
+            return (
+              <button
+                key={s.stepNumber}
+                onClick={() => setActiveStepIdx(idx)}
+                className={`p-4 rounded-2xl text-left transition-all border flex flex-col justify-between ${
+                  isActive
+                    ? "bg-[#2d6a4f] border-[#2d6a4f] text-white shadow-md ring-2 ring-[#2d6a4f]/20"
+                    : "bg-white border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:border-[rgba(30,27,22,0.2)] hover:bg-[#fcfbf9]"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`data text-[10px] font-bold uppercase tracking-wider ${isActive ? "text-[#d1ece0]" : "text-[#8a867e]"}`}>
+                      Phase {s.stepNumber}
                     </span>
-                    <span className="flex-1">{item}</span>
+                    <span className={`data text-[9px] px-2 py-0.5 rounded font-semibold ${isActive ? "bg-white/20 text-white" : "bg-[#f2efe8] text-[#4a4640]"}`}>
+                      {s.timeframe}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Pitfall & Verification Gates */}
-            <div className="space-y-2.5 pt-2">
-              <div className="bg-[#fdd5d5]/30 border border-[#fca5a5] rounded-xl p-3.5">
-                <div className="text-[10px] font-mono font-bold text-[#b91c1c] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                  <span>⚠</span> Common Pitfall to Avoid
+                  <div className={`text-[13px] font-semibold leading-snug ${isActive ? "text-white" : "text-[#1e1b16]"}`}>
+                    {s.title.split("(")[0]}
+                  </div>
                 </div>
-                <p className="text-[11.5px] text-[#7f1d1d] leading-relaxed">{step.keyPitfallToAvoid}</p>
+                <div className={`text-[10.5px] mt-3 font-mono ${isActive ? "text-white/80" : "text-[#2d6a4f] font-semibold"}`}>
+                  {s.costEstimate.split("(")[0]}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Deep Step Execution Card */}
+        <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal border border-[rgba(30,27,22,0.12)] rounded-3xl p-6 sm:p-10 bg-white shadow-sm space-y-8">
+          {/* Header */}
+          <div className="flex flex-wrap items-baseline justify-between gap-4 pb-5 border-b border-[rgba(30,27,22,0.08)]">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="data text-[10.5px] text-[#2d6a4f] font-bold bg-[#d1ece0] px-2.5 py-0.5 rounded">
+                  {step.badge}
+                </span>
+                <span className={`data text-[10.5px] font-semibold px-2.5 py-0.5 rounded ${difficultyCls(step.difficulty)}`}>
+                  {step.difficulty}
+                </span>
+                <span className="data text-[11px] text-[#8a867e]">
+                  Timeframe: <strong>{step.timeframe}</strong>
+                </span>
+              </div>
+              <h2 className="display text-[24px] sm:text-[28px] font-medium text-[#1e1b16] mt-1">
+                Phase {step.stepNumber}: {step.title}
+              </h2>
+            </div>
+            <div className="data text-[12px] bg-[#f8f6f1] border border-[rgba(30,27,22,0.1)] px-4 py-2 rounded-xl text-[#1e1b16] font-bold">
+              Cost: {step.costEstimate}
+            </div>
+          </div>
+
+          {/* Plain-English Overview */}
+          <div className="bg-[#f8f6f1] p-5 rounded-2xl border border-[rgba(30,27,22,0.07)] text-[13.5px] text-[#2c2822] leading-relaxed">
+            <strong className="text-[#2d6a4f] font-semibold block mb-1">Plain-English Summary:</strong>
+            {step.summary}
+          </div>
+
+          {/* Two-Column Grid: Checklist & Code */}
+          <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8">
+            {/* Checklist & Gates */}
+            <div className="space-y-5">
+              <div>
+                <Label>Actionable Step-by-Step Checklist</Label>
+                <div className="space-y-3 mt-2.5">
+                  {step.howToStart.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3.5 text-[13px] bg-[#fcfbf9] p-3.5 rounded-xl border border-[rgba(30,27,22,0.06)] text-[#332f28] leading-relaxed shadow-2xs">
+                      <span className="w-6 h-6 rounded-full bg-[#2d6a4f] text-white font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span className="flex-1">{item}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="bg-[#d1ece0]/30 border border-[#a7f3d0] rounded-xl p-3.5">
-                <div className="text-[10px] font-mono font-bold text-[#1a5c36] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              {/* Pitfall Box */}
+              <div className="bg-[#fdd5d5]/30 border border-[#fca5a5] rounded-2xl p-4">
+                <div className="text-[10.5px] font-mono font-bold text-[#b91c1c] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <span>⚠</span> Critical Pitfall to Avoid
+                </div>
+                <p className="text-[12px] text-[#7f1d1d] leading-relaxed">{step.keyPitfallToAvoid}</p>
+              </div>
+
+              {/* Verification Gate */}
+              <div className="bg-[#d1ece0]/30 border border-[#a7f3d0] rounded-2xl p-4">
+                <div className="text-[10.5px] font-mono font-bold text-[#1a5c36] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
                   <span>✓</span> Verification Milestone Gate
                 </div>
-                <p className="text-[11.5px] text-[#065f46] leading-relaxed font-mono">{step.verificationGate}</p>
+                <p className="text-[12px] text-[#065f46] leading-relaxed font-mono">{step.verificationGate}</p>
+              </div>
+            </div>
+
+            {/* Code / Command Runner Box */}
+            <div className="space-y-2.5 flex flex-col">
+              <div className="flex items-center justify-between">
+                <Label>{step.exactCodeOrCommands.title}</Label>
+                <button
+                  onClick={handleCopy}
+                  className="data text-[10.5px] bg-[#f2efe8] hover:bg-[#eae7df] border border-[rgba(30,27,22,0.12)] px-3 py-1.5 rounded-lg transition-colors text-[#1e1b16] font-bold flex items-center gap-1.5 shadow-2xs"
+                >
+                  {copied ? "✓ Copied!" : "📋 Copy Code"}
+                </button>
+              </div>
+
+              <div className="bg-[#1e1b16] text-[#e5e0d8] rounded-2xl p-5 font-mono text-[11px] leading-relaxed overflow-x-auto flex-1 border border-black/20 max-h-[460px] no-scrollbar shadow-inner">
+                <pre>
+                  <code>{step.exactCodeOrCommands.code}</code>
+                </pre>
+              </div>
+              <div className="text-[10.5px] text-[#8a867e] italic text-right">
+                Format: <span className="font-mono text-[#2d6a4f] uppercase font-bold">{step.exactCodeOrCommands.language}</span> · Ready to paste and run
               </div>
             </div>
           </div>
 
-          {/* Right: Runnable Code or Command Box */}
-          <div className="space-y-2 flex flex-col">
-            <div className="flex items-center justify-between">
-              <Label>{step.exactCodeOrCommands.title}</Label>
-              <button
-                onClick={handleCopy}
-                className="data text-[10px] bg-[#f2efe8] hover:bg-[#eae7df] border border-[rgba(30,27,22,0.1)] px-2.5 py-1 rounded transition-colors text-[#1e1b16] font-semibold flex items-center gap-1"
-              >
-                {copied ? "✓ Copied!" : "Copy Code"}
-              </button>
-            </div>
-
-            <div className="bg-[#1e1b16] text-[#e5e0d8] rounded-xl p-4 font-mono text-[11px] overflow-x-auto flex-1 border border-black/20 max-h-[420px] no-scrollbar">
-              <pre>
-                <code>{step.exactCodeOrCommands.code}</code>
-              </pre>
-            </div>
-            <div className="text-[10px] text-[#8a867e] italic text-right">
-              Language: <span className="font-mono text-[#2d6a4f] uppercase">{step.exactCodeOrCommands.language}</span> · Ready to execute locally
-            </div>
+          {/* Stepper Navigation */}
+          <div className="flex items-center justify-between pt-5 border-t border-[rgba(30,27,22,0.08)] text-[11.5px] font-mono">
+            <button
+              disabled={activeStepIdx === 0}
+              onClick={() => setActiveStepIdx((s) => Math.max(0, s - 1))}
+              className="px-4 py-2 rounded-xl bg-[#f2efe8] text-[#1e1b16] font-semibold hover:bg-[#eae7df] disabled:opacity-40 transition-colors"
+            >
+              ← Previous Phase
+            </button>
+            <span className="text-[#8a867e]">
+              Phase {step.stepNumber} of {EXECUTION_STEPS.length}
+            </span>
+            <button
+              disabled={activeStepIdx === EXECUTION_STEPS.length - 1}
+              onClick={() => setActiveStepIdx((s) => Math.min(EXECUTION_STEPS.length - 1, s + 1))}
+              className="px-4 py-2 rounded-xl bg-[#2d6a4f] text-white font-semibold hover:bg-[#23533e] disabled:opacity-40 transition-colors shadow-xs"
+            >
+              Next Phase →
+            </button>
           </div>
         </div>
 
-        {/* Stepper Navigation */}
-        <div className="flex items-center justify-between pt-4 border-t border-[rgba(30,27,22,0.08)] text-[11px] font-mono">
-          <button
-            disabled={activeStepIdx === 0}
-            onClick={() => setActiveStepIdx((s) => Math.max(0, s - 1))}
-            className="px-3.5 py-1.5 rounded-lg bg-[#f2efe8] text-[#1e1b16] font-semibold hover:bg-[#eae7df] disabled:opacity-40 transition-colors"
-          >
-            ← Previous Phase
-          </button>
-          <span className="text-[#8a867e]">
-            Execution Phase {step.stepNumber} of {EXECUTION_STEPS.length}
-          </span>
-          <button
-            disabled={activeStepIdx === EXECUTION_STEPS.length - 1}
-            onClick={() => setActiveStepIdx((s) => Math.min(EXECUTION_STEPS.length - 1, s + 1))}
-            className="px-3.5 py-1.5 rounded-lg bg-[#2d6a4f] text-white font-semibold hover:bg-[#23533e] disabled:opacity-40 transition-colors shadow-xs"
-          >
-            Next Phase →
-          </button>
+        {/* 7-Step First Experiment Protocol Summary */}
+        <div className="border border-[rgba(30,27,22,0.1)] rounded-3xl p-6 sm:p-8 bg-white shadow-xs space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>High-Priority Proof-of-Concept</Label>
+              <h3 className="display text-[20px] font-medium text-[#1e1b16] mt-0.5">
+                The 5-Node Lab Demo: 7-Week Execution Schedule
+              </h3>
+            </div>
+            <span className="data text-[11px] bg-[#d1ece0] text-[#1a5c36] px-3 py-1 rounded-full font-bold">
+              Weeks 1–7
+            </span>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[12px]">
+            {FIRST_EXPERIMENT_STEPS.slice(0, 4).map((s) => (
+              <div key={s.step} className="border border-[rgba(30,27,22,0.08)] rounded-xl p-3.5 bg-[#f8f6f1]">
+                <div className="data text-[10px] text-[#2d6a4f] font-bold">WEEK {s.step}</div>
+                <div className="font-semibold text-[#1e1b16] mt-0.5 mb-1">{s.title}</div>
+                <p className="text-[11px] text-[#8a867e] leading-snug">{s.objective}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
-// ─── §1 RESEARCH OBJECTIVES & SUCCESS CRITERIA ────────────────────────────────
+// ─── PAGE 3: CIRCUIT & HARDWARE LAB BENCH ─────────────────────────────────────
 
-function ResearchObjectives() {
-  const listRef = useRevealList();
+function CircuitLabPage() {
   return (
-    <section id="objectives" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
-      <SectionHeader
-        n="§1"
-        title="Research objectives & falsifiability criteria"
-        sub="The guiding mission: determine if physical power-electronic circuits can reproduce key traffic dynamics and yield useful new capabilities."
-      />
-
-      <div ref={listRef as React.RefObject<HTMLDivElement>} className="grid md:grid-cols-2 gap-6 max-w-5xl mb-8">
-        <div className="reveal border border-[rgba(45,106,79,0.2)] rounded-2xl p-6 bg-[#d1ece0]/15 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full bg-[#2d6a4f]" />
-              <Label>Primary Scientific Objective</Label>
-            </div>
-            <h3 className="display text-[18px] font-medium text-[#1e1b16] mb-3">
-              Rigorous Mathematical & Physical Transformation
-            </h3>
-            <p className="text-[13px] text-[#332f28] leading-relaxed">
-              Identify which traffic components (roads, intersections, traffic signals, queues, entire networks) can legitimately be modeled as power-electronic circuits or switching networks.
-              Establish whether there exists a <strong>mathematically rigorous transformation</strong> that yields new insights beyond conventional traffic models (e.g. CTM, Max-Pressure).
-            </p>
+    <div className="space-y-12 pb-16">
+      {/* Circuit Lab Hero Banner */}
+      <section className="grid-bg px-6 sm:px-12 pt-10 pb-8 border-b border-[rgba(30,27,22,0.08)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 text-[10px] font-mono text-[#2d6a4f] uppercase tracking-wider font-bold mb-3">
+            <span>⚡ HARDWARE LAB & OSCILLOSCOPE TEST BENCH</span>
           </div>
-          <div className="mt-4 pt-3 border-t border-[rgba(45,106,79,0.15)] text-[11px] text-[#2d6a4f] font-mono">
-            Key Question: "Can a physical circuit reproduce key dynamics and yield useful information?"
-          </div>
+          <h1 className="display text-[32px] sm:text-[46px] font-medium leading-tight text-[#1e1b16] max-w-4xl">
+            Circuit Topologies, Live Oscilloscope & Hardware BOM
+          </h1>
+          <p className="mt-4 text-[14px] text-[#4a4640] leading-relaxed max-w-3xl">
+            Interactive electronic simulation and hardware engineering suite: test 4-switch matrix converter topologies, view animated gate PWM and sawtooth queue voltages, run 6 canonical disturbance tests, and inspect the $120 itemized BOM.
+          </p>
         </div>
+      </section>
 
-        <div className="reveal border border-[rgba(30,27,22,0.1)] rounded-2xl p-6 bg-white flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full bg-[#b91c1c]" />
-              <Label>Falsification & Success Criteria</Label>
-            </div>
-            <h3 className="display text-[18px] font-medium text-[#1e1b16] mb-3">
-              Falsifiable Performance Gates
-            </h3>
-            <ul className="space-y-2 text-[12.5px] text-[#4a4640] leading-relaxed">
-              <li className="flex gap-2">
-                <span className="text-[#2d6a4f] shrink-0">✓</span>
-                <span><strong>Unit & Conservation Consistency:</strong> Preserves exact flow continuity (KCL) without unphysical energy violations.</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-[#2d6a4f] shrink-0">✓</span>
-                <span><strong>Sim-to-Sim Error &lt; 15%:</strong> Analog circuit outputs must track microscopic SUMO queues within ±15% error and Pearson r &gt; 0.85.</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-[#2d6a4f] shrink-0">✓</span>
-                <span><strong>Zero Spurious Dynamics:</strong> The circuit must not produce artificial electrical resonances not found in vehicular flow.</span>
-              </li>
-            </ul>
-          </div>
-          <div className="mt-4 pt-3 border-t border-[rgba(30,27,22,0.08)] text-[11px] text-[#8a867e] font-mono">
-            Rule: Reject any analogy with &gt; 30% persistent tracking divergence.
-          </div>
-        </div>
-      </div>
+      {/* §6 Circuit Design & Live Waveforms */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <CircuitDesignSection />
+      </section>
 
-      {/* 6 Subgoals breakdown */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl">
-        {[
-          { num: "01", title: "Literature Survey", desc: "Catalog 70 years of traffic-electrical analogies (LWR 1955, Schweitzer 1999, Cui 2012, Sinop 2022, Moyalan 2026)." },
-          { num: "02", title: "Power-Electronics Catalog", desc: "Map converters, PWM, multi-pole switches, FCS-MPC, and conduction/switching losses to traffic signal actuation." },
-          { num: "03", title: "Decision Matrix Scoring", desc: "Classify candidates into Physical (A), Functional (B), Mathematical (C), Control (D), Conceptual (E)." },
-          { num: "04", title: "State-Space Modeling", desc: "Formulate switched hybrid dynamical equations x(k+1)=f(x,u,d) with switched admittance matrix Y(t)." },
-          { num: "05", title: "Hardware Bench Prototype", desc: "Build low-voltage 12V 5-node testbed with logic-level MOSFETs, storage capacitors, and current shunts ($100–$200 BOM)." },
-          { num: "06", title: "'Break It' Testing", desc: "Execute 6 canonical perturbation and contingency tests (N-1 line cuts, signal stuck faults, rush hour surges)." },
-        ].map((g) => (
-          <div key={g.num} className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-white hover:border-[rgba(30,27,22,0.18)] transition-colors">
-            <div className="flex items-baseline justify-between mb-1.5">
-              <span className="data text-[11px] font-bold text-[#2d6a4f]">{g.num}</span>
-              <span className="data text-[9px] text-[#8a867e]">SUBGOAL</span>
-            </div>
-            <div className="text-[13px] font-semibold text-[#1e1b16] mb-1">{g.title}</div>
-            <p className="text-[11.5px] text-[#4a4640] leading-relaxed">{g.desc}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+      {/* §8 Experimental Protocol & 6 Bench Tests */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <ExperimentalProtocolSection />
+      </section>
+
+      {/* §7 Hardware Prototype & Bill of Materials */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <HardwarePrototypeSection />
+      </section>
+    </div>
   );
 }
 
-// ─── §2 CANDIDATE MAPPINGS & MULTI-CRITERIA DECISION MATRIX ───────────────────
+// ─── PAGE 4: LITERATURE, PATENTS & DECISION MATRIX ────────────────────────────
+
+function LiteraturePage() {
+  return (
+    <div className="space-y-12 pb-16">
+      {/* Literature Hero Banner */}
+      <section className="grid-bg px-6 sm:px-12 pt-10 pb-8 border-b border-[rgba(30,27,22,0.08)]">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2 text-[10px] font-mono text-[#2d6a4f] uppercase tracking-wider font-bold mb-3">
+            <span>📚 RESEARCH ARCHIVE & PATENT DOSSIER</span>
+          </div>
+          <h1 className="display text-[32px] sm:text-[46px] font-medium leading-tight text-[#1e1b16] max-w-4xl">
+            Candidate Decision Matrix, 70-Year Literature & Patent Prior Art
+          </h1>
+          <p className="mt-4 text-[14px] text-[#4a4640] leading-relaxed max-w-3xl">
+            Full multi-criteria classification across Physical, Functional, Mathematical, Control, and Conceptual dimensions, paired with an exhaustive 70-year prior art matrix and multi-jurisdiction patent search dossier.
+          </p>
+        </div>
+      </section>
+
+      {/* §2 Decision Matrix */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <DecisionMatrixSection />
+      </section>
+
+      {/* §13 Prior Art & Patent Dossier */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <PriorArtAndPatentsSection />
+      </section>
+
+      {/* §5 Simulation Tools Matrix */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <SimulationToolchainSection />
+      </section>
+    </div>
+  );
+}
+
+// ─── REUSABLE CORE SECTIONS (USED ACROSS PAGES) ───────────────────────────────
 
 function DecisionMatrixSection() {
   const [selectedCandidate, setSelectedCandidate] = useState<string>("intersection");
   const [scoreFilter, setScoreFilter] = useState<number | "all">("all");
-  const listRef = useRevealList();
 
   const filtered = useMemo(() => {
     return CANDIDATE_MAPPINGS.filter((m) => {
@@ -574,7 +702,7 @@ function DecisionMatrixSection() {
   const active = CANDIDATE_MAPPINGS.find((c) => c.id === selectedCandidate) || CANDIDATE_MAPPINGS[0];
 
   return (
-    <section id="decision-matrix" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§2"
         title="Candidate mappings & multi-criteria decision matrix"
@@ -602,7 +730,7 @@ function DecisionMatrixSection() {
       </div>
 
       {/* Decision Table */}
-      <div className="overflow-x-auto border border-[rgba(30,27,22,0.1)] rounded-xl bg-white mb-8">
+      <div className="overflow-x-auto border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white mb-8">
         <table className="w-full text-left text-[12px]">
           <thead>
             <tr className="border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8] text-[#4a4640] font-medium data text-[10px]">
@@ -689,39 +817,34 @@ function DecisionMatrixSection() {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-// ─── §3 DIMENSIONAL ANALYSIS & CONSERVATION LAWS ──────────────────────────────
-
 function DimensionalAnalysisSection() {
-  const [scaleK, setScaleK] = useState(10); // Coulombs per vehicle
-  const [vehFlow, setVehFlow] = useState(1200); // veh / hour
-  const [queueVeh, setQueueVeh] = useState(25); // vehicles in queue
-  const [greenTime, setGreenTime] = useState(30); // seconds
-  const [cycleTime, setCycleTime] = useState(60); // seconds
-  const ref = useReveal();
+  const [scaleK, setScaleK] = useState(10);
+  const [vehFlow, setVehFlow] = useState(1200);
+  const [queueVeh, setQueueVeh] = useState(25);
+  const [greenTime, setGreenTime] = useState(30);
+  const [cycleTime, setCycleTime] = useState(60);
 
-  // Dynamic calculations
-  const flowVehSec = (vehFlow / 3600); // veh/s
-  const currentAmps = (flowVehSec * scaleK); // Amperes
+  const flowVehSec = vehFlow / 3600;
+  const currentAmps = flowVehSec * scaleK;
   const currentMilliAmps = (currentAmps * 1000).toFixed(1);
-  const chargeCoulombs = (queueVeh * scaleK);
-  const capacitanceFarads = scaleK; // C = k
-  const nodeVoltage = (chargeCoulombs / capacitanceFarads).toFixed(1); // V = q
+  const chargeCoulombs = queueVeh * scaleK;
+  const capacitanceFarads = scaleK;
+  const nodeVoltage = (chargeCoulombs / capacitanceFarads).toFixed(1);
   const dutyCycle = (greenTime / cycleTime).toFixed(2);
 
   return (
-    <section id="dimensional" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§3"
         title="Dimensional analysis & conservation laws"
         sub="Rigorous unit consistency and flow conservation proofs mapping traffic hydrodynamics to Kirchhoff's Current Law."
       />
 
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal grid lg:grid-cols-[1fr_380px] gap-8 max-w-6xl mb-8">
-        {/* Left: Mathematical Proofs */}
+      <div className="grid lg:grid-cols-[1fr_380px] gap-8 max-w-6xl mb-8">
         <div className="space-y-6">
           <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-6 bg-white space-y-4">
             <h3 className="display text-[17px] font-medium text-[#1e1b16]">
@@ -745,20 +868,20 @@ function DimensionalAnalysisSection() {
               <Label>Travel Time ↔ Resistance</Label>
               <div className="data text-[12px] text-[#2d6a4f] font-semibold mt-1">R_e = α · T_e [Ohms]</div>
               <p className="text-[11.5px] text-[#4a4640] leading-relaxed mt-1">
-                Ohmic resistance scales proportionally with link free-flow travel time, causing higher voltage drops on congested corridors.
+                Ohmic resistance scales proportionally with link free-flow travel time.
               </p>
             </div>
             <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-white">
               <Label>Signal Green Time ↔ PWM Duty</Label>
               <div className="data text-[12px] text-[#2d6a4f] font-semibold mt-1">D = T_g / T_cyc = T_on / T_s</div>
               <p className="text-[11.5px] text-[#4a4640] leading-relaxed mt-1">
-                Traffic phase green ratio maps isomorphically to semiconductor PWM conduction duty cycle.
+                Traffic phase green ratio maps isomorphically to semiconductor PWM duty.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Right: Interactive Dimensional Scaling Widget */}
+        {/* Interactive Scaler Widget */}
         <div className="border border-[rgba(45,106,79,0.2)] rounded-2xl p-5 bg-[#f2efe8] space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-[rgba(30,27,22,0.08)]">
             <span className="text-[12px] font-bold text-[#1e1b16] font-mono">DIMENSIONAL SCALER</span>
@@ -801,28 +924,11 @@ function DimensionalAnalysisSection() {
             />
           </div>
 
-          <div>
-            <div className="flex justify-between text-[11px] mb-1">
-              <span className="text-[#4a4640]">Signal Timing</span>
-              <span className="data font-bold text-[#1e1b16]">{greenTime}s Green / {cycleTime}s Cycle</span>
-            </div>
-            <input
-              type="range" min={10} max={55} step={5} value={greenTime}
-              onChange={(e) => setGreenTime(parseInt(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          {/* Computed Electrical Equivalents */}
           <div className="bg-white border border-[rgba(30,27,22,0.1)] rounded-xl p-4 space-y-2.5">
             <div className="text-[10px] font-mono text-[#8a867e] uppercase font-bold">Equivalent Electrical Domain Values</div>
             <div className="flex justify-between text-[12px]">
               <span className="text-[#4a4640]">Branch Current (I):</span>
               <span className="data font-bold text-[#2d6a4f]">{currentMilliAmps} mA ({currentAmps.toFixed(3)} A)</span>
-            </div>
-            <div className="flex justify-between text-[12px]">
-              <span className="text-[#4a4640]">Node Charge (Q_e):</span>
-              <span className="data font-bold text-[#1e1b16]">{chargeCoulombs} Coulombs</span>
             </div>
             <div className="flex justify-between text-[12px]">
               <span className="text-[#4a4640]">Node Voltage (V):</span>
@@ -835,107 +941,57 @@ function DimensionalAnalysisSection() {
           </div>
         </div>
       </div>
-
-      {/* Full Parameter Mapping Table */}
-      <div className="overflow-x-auto border border-[rgba(30,27,22,0.1)] rounded-xl bg-white max-w-6xl">
-        <table className="w-full text-left text-[12px]">
-          <thead>
-            <tr className="border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8] text-[#4a4640] data text-[10px]">
-              <th className="py-2.5 px-4">Traffic Quantity</th>
-              <th className="py-2.5 px-3">Traffic Unit</th>
-              <th className="py-2.5 px-4">Electrical Equivalent</th>
-              <th className="py-2.5 px-3">Electrical Unit</th>
-              <th className="py-2.5 px-4">Scaling Equation</th>
-              <th className="py-2.5 px-4">Engineering Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {DIMENSIONAL_MAPPINGS.map((d, i) => (
-              <tr key={i} className="border-b border-[rgba(30,27,22,0.04)] hover:bg-[rgba(30,27,22,0.02)]">
-                <td className="py-2.5 px-4 font-semibold text-[#1e1b16]">{d.parameter}</td>
-                <td className="py-2.5 px-3 data text-[11px] text-[#8a867e]">{d.trafficUnit}</td>
-                <td className="py-2.5 px-4 text-[#2d6a4f] font-medium">{d.electricalEquivalent}</td>
-                <td className="py-2.5 px-3 data text-[11px] text-[#1e1b16]">{d.electricalUnit}</td>
-                <td className="py-2.5 px-4 font-mono text-[11px] text-[#7c3811] bg-[#fde8c8]/20">{d.scalingRelation}</td>
-                <td className="py-2.5 px-4 text-[11px] text-[#8a867e]">{d.notes}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    </div>
   );
 }
 
-// ─── §4 PROPOSED MATHEMATICAL MODELS & STATE-SPACE ────────────────────────────
-
 function MathematicalModelsSection() {
-  const listRef = useRevealList();
   return (
-    <section id="math-models" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§4"
         title="Proposed mathematical models & state-space equations"
         sub="Dynamic state-space difference equations, Switched Admittance Matrix Y(t), and hybrid dynamical systems."
       />
 
-      <div ref={listRef as React.RefObject<HTMLDivElement>} className="grid md:grid-cols-2 gap-6 max-w-5xl mb-8">
-        {/* Classical CTM */}
-        <div className="reveal border border-[rgba(30,27,22,0.12)] rounded-2xl p-6 bg-[#f2efe8] space-y-4">
+      <div className="grid md:grid-cols-2 gap-6 max-w-5xl mb-8">
+        <div className="border border-[rgba(30,27,22,0.12)] rounded-2xl p-6 bg-[#f2efe8] space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold text-[#1e1b16]">Classical Cell Transmission Model (CTM)</span>
             <span className="data text-[9px] bg-[#eae7df] px-2 py-0.5 rounded text-[#4a4640]">Daganzo 1994</span>
           </div>
           <p className="text-[12px] text-[#4a4640] leading-relaxed">
-            Piecewise-linear hydrodynamic simulation where signal green phases are modeled as exogenous multipliers on saturation flow capacity.
+            Piecewise-linear hydrodynamic simulation where signal green phases are modeled as exogenous multipliers on flow capacity.
           </p>
-
           <div className="space-y-3 font-mono text-[11px]">
             <div>
-              <Label>Flow Transmission Function</Label>
+              <Label>Flow Transmission</Label>
               <div className="bg-white p-2.5 rounded-lg border border-[rgba(30,27,22,0.08)] text-[#1e1b16] mt-0.5">
                 q_i(k) = min &#123; v·k_i(k),  q_max,  w·(k_jam − k_&#123;i+1&#125;(k)) &#125;
               </div>
             </div>
             <div>
-              <Label>Dynamic State Conservation</Label>
+              <Label>State Conservation</Label>
               <div className="bg-white p-2.5 rounded-lg border border-[rgba(30,27,22,0.08)] text-[#1e1b16] mt-0.5">
                 x_i(k+1) = x_i(k) + T_s · [ q_&#123;i-1&#125;(k) − q_i(k) ]
               </div>
             </div>
-            <div>
-              <Label>Phase Transition Model</Label>
-              <div className="bg-white p-2.5 rounded-lg border border-[rgba(30,27,22,0.08)] text-[#8a867e] mt-0.5">
-                Instantaneous step; lost clearance time neglected.
-              </div>
-            </div>
-          </div>
-          <div className="text-[11px] text-[#8a867e] pt-2 border-t border-[rgba(30,27,22,0.08)]">
-            Limitation: Continuous relaxation ignores discrete semiconductor conduction states and phase chattering.
           </div>
         </div>
 
-        {/* Proposed Switched Hybrid FCS-MPC */}
-        <div className="reveal border border-[rgba(45,106,79,0.25)] rounded-2xl p-6 bg-[#d1ece0]/15 space-y-4">
+        <div className="border border-[rgba(45,106,79,0.25)] rounded-2xl p-6 bg-[#d1ece0]/15 space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-[13px] font-bold text-[#2d6a4f]">Switched Network FCS-MPC (Proposed)</span>
             <span className="data text-[9px] bg-[#d1ece0] px-2 py-0.5 rounded text-[#1a5c36] font-semibold">Power Electronics</span>
           </div>
           <p className="text-[12px] text-[#332f28] leading-relaxed">
-            Formulates signalized corridors as switched hybrid dynamical systems where semiconductor switching states $u(k) \in \{0,1\}^M$ dynamically reconfigure the network admittance matrix.
+            Formulates signalized corridors as switched hybrid dynamical systems where semiconductor switching states $u(k) \in \{0,1\}^M$ dynamically reconfigure $Y(t)$.
           </p>
-
           <div className="space-y-3 font-mono text-[11px]">
             <div>
               <Label>Switched Admittance Matrix</Label>
               <div className="bg-white p-2.5 rounded-lg border border-[rgba(45,106,79,0.2)] text-[#1e1b16] mt-0.5">
                 Y(t) = A^T · diag( u_e(t) · g_e(x) ) · A
-              </div>
-            </div>
-            <div>
-              <Label>Hybrid State-Space Form</Label>
-              <div className="bg-white p-2.5 rounded-lg border border-[rgba(45,106,79,0.2)] text-[#1e1b16] mt-0.5">
-                x(k+1) = f( x(k), u(k), d(k) ),  u(k) ∈ U_admissible
               </div>
             </div>
             <div>
@@ -945,149 +1001,21 @@ function MathematicalModelsSection() {
               </div>
             </div>
           </div>
-          <div className="text-[11px] text-[#2d6a4f] pt-2 border-t border-[rgba(45,106,79,0.15)] font-medium">
-            Advantage: Explicit switching loss penalty $\lambda_{\text{sw}}\cdot\Delta u^2$ prevents chatter and minimizes lost clearance time.
-          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
-
-// ─── §5 SIMULATION ARCHITECTURE & TOOLCHAIN MATRIX ────────────────────────────
-
-function SimulationToolchainSection() {
-  const [activeTab, setActiveTab] = useState<number>(0);
-  const ref = useReveal();
-
-  const scenarios = [
-    {
-      scale: "Case 1: 5–15 Node Small Network (Lab Benchmark)",
-      nodes: "5–15 Intersections",
-      topology: "2×2 grid or cross-shaped central junction + 4 feeders.",
-      purpose: "Validate unit scaling, verify KCL flow conservation, and benchmark baseline CTM against PLECS circuit waveforms.",
-      metrics: "Queue trajectory MAE, time-to-peak alignment, and Pearson correlation r ≥ 0.90.",
-    },
-    {
-      scale: "Case 2: 25–50 Node Medium Network (Suburban Grid)",
-      nodes: "25–50 Intersections",
-      topology: "Multi-arterial suburban arterial mesh with varied turning splits.",
-      purpose: "Test scalability of distributed FCS-MPC consensus and simulate cascading queue spillback under link closures.",
-      metrics: "Network-wide vehicle clearance rate, cascading wave speed, and N-1 contingency index.",
-    },
-    {
-      scale: "Case 3: Coimbatore Corridor / Full City (100+ Nodes)",
-      nodes: "100+ Intersections",
-      topology: "Empirical Avinashi Road corridor (Lakshmi Mills to Nava India) scaled to urban mesh.",
-      purpose: "Empirical real-world validation with strict 5-tier data provenance and hardware-in-the-loop (HIL) telemetry.",
-      metrics: "Arterial travel time reduction (target ≥15%), delay variance, and sensor state estimation error.",
-    },
-  ];
-
-  return (
-    <section id="simulation-tools" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
-      <SectionHeader
-        n="§5"
-        title="Simulation architecture & multi-scale test scenarios"
-        sub="Co-simulation toolchain matrix comparing SUMO, PLECS/Simscape, MATLAB, and FMI across cost, capabilities, and roles."
-      />
-
-      {/* Toolchain Comparison Matrix */}
-      <div className="overflow-x-auto border border-[rgba(30,27,22,0.1)] rounded-xl bg-white mb-8 max-w-6xl">
-        <table className="w-full text-left text-[12px]">
-          <thead>
-            <tr className="border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8] text-[#4a4640] data text-[10px]">
-              <th className="py-3 px-4">Tool / Framework</th>
-              <th className="py-3 px-3">Role / Use-Case</th>
-              <th className="py-3 px-3">License & Cost</th>
-              <th className="py-3 px-4">Strengths</th>
-              <th className="py-3 px-4">Integration Approach</th>
-            </tr>
-          </thead>
-          <tbody>
-            {TOOLCHAIN_MATRIX.map((t, i) => (
-              <tr key={i} className="border-b border-[rgba(30,27,22,0.04)] hover:bg-[rgba(30,27,22,0.02)]">
-                <td className="py-3 px-4 font-semibold text-[#1e1b16]">{t.tool}</td>
-                <td className="py-3 px-3 text-[#2d6a4f] font-medium">{t.role}</td>
-                <td className="py-3 px-3 data text-[11px] text-[#8a867e]">{t.estimatedCost}</td>
-                <td className="py-3 px-4 text-[11.5px] text-[#4a4640] max-w-xs">{t.strengths}</td>
-                <td className="py-3 px-4 text-[11px] text-[#8a867e] max-w-xs">{t.integrationApproach}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 3-Tier Multi-Scale Test Scenarios */}
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white p-6 max-w-5xl shadow-xs">
-        <div className="flex items-center justify-between mb-4">
-          <Label>Multi-Scale Progressive Test Cases</Label>
-          <div className="flex gap-2">
-            {scenarios.map((s, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveTab(i)}
-                className={`px-3 py-1 text-[11px] rounded-lg font-medium transition-all ${
-                  activeTab === i
-                    ? "bg-[#2d6a4f] text-white shadow-xs"
-                    : "bg-[#f2efe8] text-[#4a4640] hover:bg-[#eae7df]"
-                }`}
-              >
-                Case {i + 1}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-4 pt-3 border-t border-[rgba(30,27,22,0.08)]">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h4 className="display text-[18px] font-medium text-[#1e1b16]">{scenarios[activeTab].scale}</h4>
-            <span className="data text-[11px] text-[#2d6a4f] bg-[#d1ece0] px-2.5 py-0.5 rounded-full font-bold">
-              {scenarios[activeTab].nodes}
-            </span>
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-4 text-[12px]">
-            <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-3.5 bg-[#f8f6f1]">
-              <div className="text-[10px] font-mono text-[#8a867e] uppercase font-bold mb-1">Network Topology</div>
-              <p className="text-[#332f28] leading-relaxed">{scenarios[activeTab].topology}</p>
-            </div>
-            <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-3.5 bg-[#f8f6f1]">
-              <div className="text-[10px] font-mono text-[#2d6a4f] uppercase font-bold mb-1">Primary Objective</div>
-              <p className="text-[#332f28] leading-relaxed">{scenarios[activeTab].purpose}</p>
-            </div>
-            <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-3.5 bg-[#f8f6f1]">
-              <div className="text-[10px] font-mono text-[#92400e] uppercase font-bold mb-1">Key Success Metrics</div>
-              <p className="text-[#332f28] leading-relaxed">{scenarios[activeTab].metrics}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── §6 CIRCUIT DESIGN, MATRIX CONVERTERS & LIVE WAVEFORMS ────────────────────
 
 function CircuitDesignSection() {
   const [duty, setDuty] = useState(0.5);
-  const [simTime, setSimTime] = useState(0);
   const [activeTopology, setActiveTopology] = useState<"intersection" | "road" | "queue">("intersection");
-  const ref = useReveal();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSimTime((t) => (t + 0.05) % 10);
-    }, 50);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Generate SVG waveform points based on active duty and time
   const waveformPoints = useMemo(() => {
     const pointsGate: string[] = [];
     const pointsVolt: string[] = [];
     const pointsCurr: string[] = [];
-    const period = 2.0; // seconds for visual cycle
+    const period = 2.0;
     const onTime = period * duty;
 
     for (let i = 0; i <= 200; i++) {
@@ -1096,11 +1024,9 @@ function CircuitDesignSection() {
       const isHigh = phase < onTime;
       const x = (i / 200) * 460 + 20;
 
-      // Gate PWM
       const yGate = isHigh ? 35 : 70;
       pointsGate.push(`${x},${yGate}`);
 
-      // Capacitor Sawtooth Voltage (charge when closed, discharge when open)
       let v = 0;
       if (isHigh) {
         v = (phase / onTime) * 35;
@@ -1110,7 +1036,6 @@ function CircuitDesignSection() {
       const yVolt = 130 - v;
       pointsVolt.push(`${x},${yVolt}`);
 
-      // Branch Current (inductor smoothed)
       const currentVal = isHigh ? 28 * (1 - Math.exp(-phase * 3)) : 28 * Math.exp(-(phase - onTime) * 3);
       const yCurr = 180 - currentVal;
       pointsCurr.push(`${x},${yCurr}`);
@@ -1124,15 +1049,14 @@ function CircuitDesignSection() {
   }, [duty]);
 
   return (
-    <section id="circuit-design" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§6"
         title="Circuit design, matrix converter & live waveforms"
         sub="4-switch intersection matrix topologies, R-L corridor inertia, and animated analog voltage/current dynamics."
       />
 
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal grid lg:grid-cols-[1fr_360px] gap-8 max-w-6xl mb-8">
-        {/* Left: Interactive Waveform Simulator */}
+      <div className="grid lg:grid-cols-[1fr_360px] gap-8 max-w-6xl mb-8">
         <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-6 bg-white shadow-xs space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[rgba(30,27,22,0.08)]">
             <div className="flex items-center gap-2">
@@ -1156,37 +1080,24 @@ function CircuitDesignSection() {
               >
                 R-L Corridor
               </button>
-              <button
-                onClick={() => setActiveTopology("queue")}
-                className={`px-2.5 py-1 rounded text-[10px] font-mono font-semibold transition-colors ${
-                  activeTopology === "queue" ? "bg-[#2d6a4f] text-white" : "bg-[#f2efe8] text-[#4a4640]"
-                }`}
-              >
-                Capacitor Queue
-              </button>
             </div>
           </div>
 
-          {/* SVG Waveform Display */}
           <div className="bg-[#1e1b16] rounded-xl p-3 border border-black/20">
             <svg viewBox="0 0 500 200" className="w-full h-48">
-              {/* Grid Lines */}
               <line x1="20" y1="35" x2="480" y2="35" stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
               <line x1="20" y1="70" x2="480" y2="70" stroke="rgba(255,255,255,0.12)" />
               <line x1="20" y1="130" x2="480" y2="130" stroke="rgba(255,255,255,0.12)" />
               <line x1="20" y1="180" x2="480" y2="180" stroke="rgba(255,255,255,0.12)" />
 
-              {/* Waveform 1: Gate Pulse PWM */}
               <polyline points={waveformPoints.gate} fill="none" stroke="#3b82f6" strokeWidth="2" />
               <text x="25" y="30" fill="#60a5fa" fontSize="9" fontFamily="JetBrains Mono">Gate PWM v_gs(t) [ON / OFF]</text>
 
-              {/* Waveform 2: Capacitor Sawtooth Queue Voltage */}
               <polyline points={waveformPoints.volt} fill="none" stroke="#10b981" strokeWidth="2.2" />
-              <text x="25" y="92" fill="#34d399" fontSize="9" fontFamily="JetBrains Mono">Node Voltage V_i(t) ≡ Queue x_i(t) [Sawtooth Accumulation]</text>
+              <text x="25" y="92" fill="#34d399" fontSize="9" fontFamily="JetBrains Mono">Node Voltage V_i(t) ≡ Queue x_i(t)</text>
 
-              {/* Waveform 3: Branch Current */}
               <polyline points={waveformPoints.curr} fill="none" stroke="#f59e0b" strokeWidth="2" />
-              <text x="25" y="150" fill="#fbbf24" fontSize="9" fontFamily="JetBrains Mono">Branch Current I_e(t) ≡ Flow f_e(t) [Smoothed Platoon Current]</text>
+              <text x="25" y="150" fill="#fbbf24" fontSize="9" fontFamily="JetBrains Mono">Branch Current I_e(t) ≡ Flow f_e(t)</text>
             </svg>
           </div>
 
@@ -1197,7 +1108,6 @@ function CircuitDesignSection() {
           </div>
         </div>
 
-        {/* Right: Circuit Controls & Schematic Notes */}
         <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-5 bg-[#f2efe8] space-y-4">
           <div>
             <Label>PWM Duty Ratio D = T_g / T_cyc</Label>
@@ -1215,140 +1125,25 @@ function CircuitDesignSection() {
           <div className="bg-white border border-[rgba(30,27,22,0.08)] rounded-xl p-3.5 space-y-2">
             <div className="text-[10px] font-mono text-[#8a867e] uppercase font-bold">Topology Specs</div>
             <div className="text-[12px] text-[#1e1b16] leading-relaxed">
-              <strong>4-Switch Matrix Bridge:</strong> 4 logic-level MOSFETs (IRLZ44N) configured as two bidirectional legs. Freewheeling Schottky diodes clamp all-red inductive spikes during phase commutations.
+              <strong>4-Switch Matrix Bridge:</strong> 4 logic-level MOSFETs (IRLZ44N) configured as two bidirectional legs. Freewheeling Schottky diodes clamp all-red inductive spikes.
             </div>
           </div>
-
-          <div className="bg-white border border-[rgba(30,27,22,0.08)] rounded-xl p-3.5 space-y-2">
-            <div className="text-[10px] font-mono text-[#8a867e] uppercase font-bold">Safety & Protection</div>
-            <p className="text-[11.5px] text-[#4a4640] leading-relaxed">
-              12–24V DC bus voltage. Fast-blow 3A fuses in series with DC rails. Shunt resistors (0.1Ω) on all ground returns to read branch currents into microcontroller ADC.
-            </p>
-          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
-
-// ─── §7 HARDWARE PROTOTYPE & INTERACTIVE BILL OF MATERIALS (BOM) ──────────────
-
-function HardwarePrototypeSection() {
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const ref = useReveal();
-
-  const filteredBOM = useMemo(() => {
-    return HARDWARE_BOM.filter((b) => {
-      if (categoryFilter !== "all" && b.category !== categoryFilter) return false;
-      return true;
-    });
-  }, [categoryFilter]);
-
-  const totalBOMCost = useMemo(() => {
-    return HARDWARE_BOM.reduce((sum, item) => sum + item.totalCostUSD, 0);
-  }, []);
-
-  return (
-    <section id="hardware-bom" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
-      <SectionHeader
-        n="§7"
-        title="Hardware prototype plan & Bill of Materials (BOM)"
-        sub="Itemized low-voltage benchtop hardware testbed with logic-level MOSFETs, storage capacitors, DSP controllers, and safety interlocks."
-      />
-
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div className="flex flex-wrap gap-2">
-          {["all", "Controller", "Semiconductors", "Passives", "Sensors & Power", "PCB & Prototyping"].map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-medium transition-all ${
-                categoryFilter === cat
-                  ? "bg-[#2d6a4f] text-white shadow-xs"
-                  : "bg-white border border-[rgba(30,27,22,0.1)] text-[#4a4640] hover:bg-[#f2efe8]"
-              }`}
-            >
-              {cat === "all" ? "All Components" : cat}
-            </button>
-          ))}
-        </div>
-        <div className="data text-[12px] bg-[#d1ece0] text-[#1a5c36] px-3.5 py-1.5 rounded-lg font-bold">
-          Estimated Total BOM: ${totalBOMCost.toFixed(2)} USD
-        </div>
-      </div>
-
-      {/* Itemized BOM Table */}
-      <div className="overflow-x-auto border border-[rgba(30,27,22,0.1)] rounded-xl bg-white mb-8 max-w-6xl">
-        <table className="w-full text-left text-[12px]">
-          <thead>
-            <tr className="border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8] text-[#4a4640] data text-[10px]">
-              <th className="py-2.5 px-4">Component</th>
-              <th className="py-2.5 px-3">Part Number / Specs</th>
-              <th className="py-2.5 px-2 text-center">Qty</th>
-              <th className="py-2.5 px-3 text-right">Unit ($)</th>
-              <th className="py-2.5 px-3 text-right">Total ($)</th>
-              <th className="py-2.5 px-4">Functional Purpose</th>
-              <th className="py-2.5 px-3">Safety Rating</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredBOM.map((item) => (
-              <tr key={item.id} className="border-b border-[rgba(30,27,22,0.04)] hover:bg-[rgba(30,27,22,0.02)]">
-                <td className="py-2.5 px-4 font-semibold text-[#1e1b16]">{item.component}</td>
-                <td className="py-2.5 px-3 font-mono text-[11px] text-[#2d6a4f]">{item.partNumber}</td>
-                <td className="py-2.5 px-2 text-center font-bold text-[#1e1b16]">{item.qty}</td>
-                <td className="py-2.5 px-3 text-right text-[#8a867e]">${item.unitCostUSD.toFixed(2)}</td>
-                <td className="py-2.5 px-3 text-right font-semibold text-[#1e1b16]">${item.totalCostUSD.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-[11px] text-[#4a4640] max-w-xs">{item.functionalPurpose}</td>
-                <td className="py-2.5 px-3 data text-[10px] text-[#92400e] bg-[#fde8c8]/30 rounded">{item.safetyRating}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Safety & Lab Bench Architecture */}
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal grid sm:grid-cols-3 gap-4 max-w-6xl">
-        <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-white">
-          <Label>Microcontroller & DSP Selection</Label>
-          <div className="text-[13px] font-semibold text-[#1e1b16] mt-1 mb-1">STM32 Nucleo / TI C2000</div>
-          <p className="text-[11.5px] text-[#4a4640] leading-relaxed">
-            STM32 Nucleo-F446RE (ARM Cortex-M4 @ 180MHz) provides high-resolution PWM and multi-channel 12-bit ADC for real-time 1-hop distributed consensus. TI C2000 LaunchPad enables hardware floating-point FCS-MPC evaluation.
-          </p>
-        </div>
-        <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-white">
-          <Label>Low-Voltage Bench Safety</Label>
-          <div className="text-[13px] font-semibold text-[#1e1b16] mt-1 mb-1">12V Isolated DC Supply & Fuses</div>
-          <p className="text-[11.5px] text-[#4a4640] leading-relaxed">
-            Operates at intrinsically safe 12V DC bus voltage with fast-acting 3A glass fuses, panel-mounted emergency kill-switch, and freewheeling Schottky diodes to prevent voltage spike hazards.
-          </p>
-        </div>
-        <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-white">
-          <Label>DAQ & Telemetry Interface</Label>
-          <div className="text-[13px] font-semibold text-[#1e1b16] mt-1 mb-1">Shunt Telemetry & Oscilloscope</div>
-          <p className="text-[11.5px] text-[#4a4640] leading-relaxed">
-            Low-loss 0.10Ω current shunts on all branches feed into differential ADC channels. Dedicated BNC test points allow simultaneous multi-channel digital storage oscilloscope capture.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─── §8 EXPERIMENTAL PROTOCOL & VALIDATION SUITE ──────────────────────────────
 
 function ExperimentalProtocolSection() {
   const [selectedTestId, setSelectedTestId] = useState<string>("test-n1-closure");
   const activeTest = TEST_SCENARIOS.find((t) => t.id === selectedTestId) || TEST_SCENARIOS[0];
-  const ref = useReveal();
 
-  // Synthetic time-series trajectory generation for Baseline vs Analog comparison
   const { baselinePoints, analogPoints, corrValue, mseVal } = useMemo(() => {
     const ptsBase: string[] = [];
     const ptsAnalog: string[] = [];
 
     for (let i = 0; i <= 60; i++) {
-      const t = (i / 60) * 300; // 0 to 300 seconds
+      const t = (i / 60) * 300;
       const x = (i / 60) * 440 + 30;
 
       let qBase = 15 + 5 * Math.sin(t / 25);
@@ -1381,14 +1176,13 @@ function ExperimentalProtocolSection() {
   }, [selectedTestId]);
 
   return (
-    <section id="experiments" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§8"
         title="Experimental protocol & validation test bench"
         sub="6 canonical perturbation tests comparing microscopic SUMO baseline queues against physical circuit analog voltages."
       />
 
-      {/* Scenario Selector Chips */}
       <div className="flex flex-wrap gap-2 mb-6">
         {TEST_SCENARIOS.map((t) => (
           <button
@@ -1405,8 +1199,7 @@ function ExperimentalProtocolSection() {
         ))}
       </div>
 
-      {/* Test Bench Live Visualization */}
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal grid lg:grid-cols-[1fr_360px] gap-8 max-w-6xl mb-8">
+      <div className="grid lg:grid-cols-[1fr_360px] gap-8 max-w-6xl mb-8">
         <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-6 bg-white shadow-xs space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[rgba(30,27,22,0.08)]">
             <div>
@@ -1423,167 +1216,135 @@ function ExperimentalProtocolSection() {
             </div>
           </div>
 
-          {/* SVG Comparison Graph */}
           <div className="bg-[#1e1b16] rounded-xl p-3 border border-black/20">
             <svg viewBox="0 0 500 190" className="w-full h-48">
-              {/* Grid Lines */}
               <line x1="30" y1="40" x2="470" y2="40" stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
               <line x1="30" y1="100" x2="470" y2="100" stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
               <line x1="30" y1="160" x2="470" y2="160" stroke="rgba(255,255,255,0.15)" />
 
-              {/* Baseline Curve (SUMO) */}
               <polyline points={baselinePoints} fill="none" stroke="#60a5fa" strokeWidth="2.2" />
-
-              {/* Analog Circuit Curve */}
               <polyline points={analogPoints} fill="none" stroke="#34d399" strokeWidth="2" strokeDasharray="4 2" />
 
-              {/* Axis Labels */}
               <text x="30" y="30" fill="#94a3b8" fontSize="8.5" fontFamily="JetBrains Mono">Queue Length x_i(t) [veh] ↔ Scaled Node Voltage V_i(t) [V]</text>
               <text x="440" y="175" fill="#94a3b8" fontSize="8.5" fontFamily="JetBrains Mono">Time [s]</text>
             </svg>
           </div>
 
           <div className="flex flex-wrap items-center justify-between text-[11px] text-[#8a867e] pt-1">
-            <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-[#60a5fa]" /> Ground Truth Baseline (SUMO)</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-[#34d399] border-b border-dashed" /> Power-Electronics Circuit Analog (Scaled V)</span>
-            <span className="data text-[#2d6a4f] font-semibold">Validation Tolerance: ±15% MAE</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-[#60a5fa]" /> Baseline (SUMO)</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-[#34d399] border-b border-dashed" /> Circuit Analog (V_i)</span>
+            <span className="data text-[#2d6a4f] font-semibold">Tolerance: ±15% MAE</span>
           </div>
         </div>
 
-        {/* Right: Test Description & Falsification Gate */}
         <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-5 bg-[#f2efe8] space-y-3.5">
           <div>
-            <Label>Traffic Perturbation Action</Label>
+            <Label>Traffic Perturbation</Label>
             <p className="text-[12px] text-[#332f28] leading-relaxed mt-0.5">{activeTest.trafficPerturbation}</p>
           </div>
-
           <div>
             <Label>Electrical Analog Action</Label>
             <p className="text-[12px] text-[#2d6a4f] font-medium leading-relaxed mt-0.5">{activeTest.electricalAnalogAction}</p>
           </div>
-
-          <div>
-            <Label>Expected Cross-Domain Observation</Label>
-            <p className="text-[11.5px] text-[#4a4640] leading-relaxed mt-0.5">{activeTest.expectedObservation}</p>
-          </div>
-
           <div className="bg-white border border-[rgba(30,27,22,0.08)] rounded-xl p-3 pt-2.5">
             <div className="text-[10px] font-mono text-[#b91c1c] uppercase font-bold">Pass/Fail Falsification Gate</div>
             <p className="text-[11.5px] text-[#991b1b] leading-relaxed mt-0.5">{activeTest.passCriteria}</p>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
-// ─── §9 FIRST EXPERIMENT: 5-NODE LAB DEMO ─────────────────────────────────────
+function HardwarePrototypeSection() {
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
-function FirstExperimentLabDemo() {
-  const [activeStep, setActiveStep] = useState<number>(0);
-  const ref = useReveal();
-  const step = FIRST_EXPERIMENT_STEPS[activeStep];
+  const filteredBOM = useMemo(() => {
+    return HARDWARE_BOM.filter((b) => {
+      if (categoryFilter !== "all" && b.category !== categoryFilter) return false;
+      return true;
+    });
+  }, [categoryFilter]);
+
+  const totalBOMCost = useMemo(() => {
+    return HARDWARE_BOM.reduce((sum, item) => sum + item.totalCostUSD, 0);
+  }, []);
 
   return (
-    <section id="first-experiment" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
-        n="§9"
-        title="First experiment: 5-node lab demo (highest priority)"
-        sub="The prioritized proof-of-concept experiment: 7-phase step-by-step protocol validating the circuit analogy on a tangible scale."
+        n="§7"
+        title="Hardware prototype plan & Bill of Materials (BOM)"
+        sub="Itemized low-voltage benchtop hardware testbed with logic-level MOSFETs, storage capacitors, DSP controllers, and safety interlocks."
       />
 
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal max-w-5xl space-y-6">
-        {/* Step Progress Stepper */}
-        <div className="grid grid-cols-7 gap-1.5">
-          {FIRST_EXPERIMENT_STEPS.map((s, idx) => (
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap gap-2">
+          {["all", "Controller", "Semiconductors", "Passives", "Sensors & Power", "PCB & Prototyping"].map((cat) => (
             <button
-              key={s.step}
-              onClick={() => setActiveStep(idx)}
-              className={`p-2 rounded-xl text-center transition-all ${
-                activeStep === idx
+              key={cat}
+              onClick={() => setCategoryFilter(cat)}
+              className={`px-3 py-1 rounded-lg text-[11px] font-medium transition-all ${
+                categoryFilter === cat
                   ? "bg-[#2d6a4f] text-white shadow-xs"
-                  : "bg-white border border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:bg-[#f2efe8]"
+                  : "bg-white border border-[rgba(30,27,22,0.1)] text-[#4a4640] hover:bg-[#f2efe8]"
               }`}
             >
-              <div className="data text-[9px] opacity-80">{s.duration}</div>
-              <div className="display text-[12px] font-bold mt-0.5">Step {s.step}</div>
+              {cat === "all" ? "All Components" : cat}
             </button>
           ))}
         </div>
-
-        {/* Active Step Card */}
-        <div className="border border-[rgba(30,27,22,0.12)] rounded-2xl p-6 bg-white shadow-xs space-y-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-3 pb-3 border-b border-[rgba(30,27,22,0.08)]">
-            <div>
-              <span className="data text-[10px] text-[#2d6a4f] font-bold">PHASE {step.step} OF 7 · {step.duration}</span>
-              <h3 className="display text-[18px] font-medium text-[#1e1b16] mt-0.5">{step.title}</h3>
-            </div>
-            <div className="data text-[11px] bg-[#f2efe8] px-3 py-1 rounded text-[#1e1b16]">
-              Objective: <strong>{step.objective}</strong>
-            </div>
-          </div>
-
-          <div>
-            <Label>Step-by-Step Procedure Checklist</Label>
-            <div className="space-y-2 mt-2">
-              {step.procedure.map((proc, i) => (
-                <div key={i} className="flex items-start gap-2.5 text-[12px] text-[#332f28] leading-relaxed bg-[#f8f6f1] p-3 rounded-lg border border-[rgba(30,27,22,0.05)]">
-                  <span className="w-5 h-5 rounded-full bg-[#d1ece0] text-[#1a5c36] font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    {i + 1}
-                  </span>
-                  <span>{proc}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[rgba(30,27,22,0.08)]">
-            <div className="text-[11.5px] text-[#4a4640]">
-              <strong>Primary Deliverable:</strong> <span className="font-mono text-[#2d6a4f]">{step.deliverable}</span>
-            </div>
-            <div className="flex gap-2 font-mono text-[10px]">
-              <button
-                disabled={activeStep === 0}
-                onClick={() => setActiveStep((s) => Math.max(0, s - 1))}
-                className="px-3 py-1 rounded bg-[#f2efe8] text-[#1e1b16] disabled:opacity-40"
-              >
-                ← Prev Step
-              </button>
-              <button
-                disabled={activeStep === FIRST_EXPERIMENT_STEPS.length - 1}
-                onClick={() => setActiveStep((s) => Math.min(FIRST_EXPERIMENT_STEPS.length - 1, s + 1))}
-                className="px-3 py-1 rounded bg-[#2d6a4f] text-white disabled:opacity-40"
-              >
-                Next Step →
-              </button>
-            </div>
-          </div>
+        <div className="data text-[12px] bg-[#d1ece0] text-[#1a5c36] px-3.5 py-1.5 rounded-lg font-bold">
+          Estimated Total BOM: ${totalBOMCost.toFixed(2)} USD
         </div>
       </div>
-    </section>
+
+      <div className="overflow-x-auto border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white mb-8 max-w-6xl">
+        <table className="w-full text-left text-[12px]">
+          <thead>
+            <tr className="border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8] text-[#4a4640] data text-[10px]">
+              <th className="py-2.5 px-4">Component</th>
+              <th className="py-2.5 px-3">Part Number / Specs</th>
+              <th className="py-2.5 px-2 text-center">Qty</th>
+              <th className="py-2.5 px-3 text-right">Unit ($)</th>
+              <th className="py-2.5 px-3 text-right">Total ($)</th>
+              <th className="py-2.5 px-4">Functional Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredBOM.map((item) => (
+              <tr key={item.id} className="border-b border-[rgba(30,27,22,0.04)] hover:bg-[rgba(30,27,22,0.02)]">
+                <td className="py-2.5 px-4 font-semibold text-[#1e1b16]">{item.component}</td>
+                <td className="py-2.5 px-3 font-mono text-[11px] text-[#2d6a4f]">{item.partNumber}</td>
+                <td className="py-2.5 px-2 text-center font-bold text-[#1e1b16]">{item.qty}</td>
+                <td className="py-2.5 px-3 text-right text-[#8a867e]">${item.unitCostUSD.toFixed(2)}</td>
+                <td className="py-2.5 px-3 text-right font-semibold text-[#1e1b16]">${item.totalCostUSD.toFixed(2)}</td>
+                <td className="py-2.5 px-4 text-[11px] text-[#4a4640] max-w-xs">{item.functionalPurpose}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
-
-// ─── §10 SCIENTIFIC RISK ANALYSIS & DECISION CRITERIA ─────────────────────────
 
 function RiskRegisterSection() {
   const [selectedRiskId, setSelectedRiskId] = useState<string>("risk-no-mapping");
   const activeRisk = RISK_REGISTER.find((r) => r.id === selectedRiskId) || RISK_REGISTER[0];
-  const ref = useReveal();
 
   const severityColor = (sev: "High" | "Medium" | "Low") =>
     sev === "High" ? "bg-[#fdd5d5] text-[#991b1b]" : sev === "Medium" ? "bg-[#fde8c8] text-[#7c3811]" : "bg-[#d1ece0] text-[#1a5c36]";
 
   return (
-    <section id="risk-register" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§10"
         title="Scientific risk analysis & decision/abandonment criteria"
         sub="Comprehensive risk register with likelihood, severity, root cause failure mechanisms, mitigations, and explicit continue-vs-abandon criteria."
       />
 
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal grid lg:grid-cols-[380px_1fr] gap-8 max-w-6xl">
-        {/* Left: Risk List */}
+      <div className="grid lg:grid-cols-[380px_1fr] gap-8 max-w-6xl">
         <div className="space-y-2">
           {RISK_REGISTER.map((r, i) => {
             const isSelected = r.id === selectedRiskId;
@@ -1608,13 +1369,11 @@ function RiskRegisterSection() {
                     {r.severity}
                   </span>
                 </div>
-                <div className="text-[10px] text-[#8a867e] mt-1 pl-7">{r.category}</div>
               </div>
             );
           })}
         </div>
 
-        {/* Right: Selected Risk Deep-Dive & Abandonment Criteria */}
         <div className="border border-[rgba(30,27,22,0.12)] rounded-2xl p-6 bg-white shadow-xs space-y-4">
           <div className="flex flex-wrap items-baseline justify-between gap-3 pb-3 border-b border-[rgba(30,27,22,0.08)]">
             <div>
@@ -1625,28 +1384,22 @@ function RiskRegisterSection() {
               <span className={`px-2 py-0.5 rounded font-bold ${severityColor(activeRisk.severity)}`}>
                 Severity: {activeRisk.severity}
               </span>
-              <span className="px-2 py-0.5 rounded bg-[#f2efe8] text-[#4a4640] font-bold">
-                Likelihood: {activeRisk.likelihood}
-              </span>
             </div>
           </div>
 
           <div>
-            <Label>Threat Summary & Failure Mechanism</Label>
-            <p className="text-[12.5px] text-[#332f28] leading-relaxed mt-1">{activeRisk.threatDescription}</p>
-            <div className="bg-[#f8f6f1] p-3 rounded-lg border border-[rgba(30,27,22,0.06)] text-[11.5px] text-[#4a4640] mt-2 leading-relaxed">
-              <strong>Root Cause:</strong> {activeRisk.failureMechanism}
-            </div>
+            <Label>Root Cause Failure Mechanism</Label>
+            <p className="text-[12.5px] text-[#332f28] leading-relaxed mt-1">{activeRisk.failureMechanism}</p>
           </div>
 
           <div>
-            <Label>Engineering Mitigation Strategy</Label>
+            <Label>Mitigation Protocol</Label>
             <p className="text-[12.5px] text-[#2d6a4f] font-medium leading-relaxed mt-1">{activeRisk.mitigationStrategy}</p>
           </div>
 
           <div className="bg-[#fdd5d5]/30 border border-[#fca5a5] rounded-xl p-4">
             <div className="text-[10px] font-mono text-[#b91c1c] uppercase font-bold tracking-wider mb-1">
-              ⛔ Explicit Abandonment / Pivot Threshold
+              ⛔ Explicit Abandonment Threshold
             </div>
             <p className="text-[12px] text-[#7f1d1d] leading-relaxed font-mono">
               {activeRisk.decisionAbandonmentThreshold}
@@ -1654,37 +1407,27 @@ function RiskRegisterSection() {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
-
-// ─── §11 RESEARCH ROADMAP, GANTT & BUDGET BREAKDOWN ───────────────────────────
 
 function RoadmapAndBudgetSection() {
   const [activeStageIdx, setActiveStageIdx] = useState<number>(0);
   const stage = RESEARCH_ROADMAP_STAGES[activeStageIdx];
-  const ref = useReveal();
 
   const totalThreeYearBudget = useMemo(() => {
     return BUDGET_BREAKDOWN.reduce((sum, item) => sum + item.threeYearTotalUSD, 0);
   }, []);
 
   return (
-    <section id="roadmap-budget" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§11"
         title="3-Year research roadmap, milestones & budget plan"
         sub="Comprehensive Stage 0 to Stage 7 execution timeline (2026–2031) with multidisciplinary personnel allocation and $1M–$1.5M budget breakdown."
       />
 
-      {/* Stage Timeline Viewer */}
-      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white p-6 mb-8 max-w-6xl shadow-xs">
-        <div className="flex items-center justify-between mb-4">
-          <Label>Research Stages (Stage 0 to Stage 7)</Label>
-          <span className="data text-[10px] text-[#8a867e]">3-Year Total Scope</span>
-        </div>
-
-        {/* Stage Buttons */}
+      <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white p-6 mb-8 max-w-6xl shadow-xs">
         <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 mb-6">
           {RESEARCH_ROADMAP_STAGES.map((s, idx) => (
             <button
@@ -1702,22 +1445,20 @@ function RoadmapAndBudgetSection() {
           ))}
         </div>
 
-        {/* Active Stage Details */}
         <div className="space-y-4 pt-3 border-t border-[rgba(30,27,22,0.08)]">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <div>
               <span className="data text-[10px] text-[#2d6a4f] font-bold">{stage.stageNumber} · {stage.quarterSpan}</span>
               <h3 className="display text-[18px] font-medium text-[#1e1b16] mt-0.5">{stage.stageName}</h3>
             </div>
-            <div className="flex gap-2 font-mono text-[10px]">
-              <span className="px-2.5 py-1 rounded bg-[#f2efe8] text-[#1e1b16]">Timeframe: {stage.timeframe}</span>
-              <span className="px-2.5 py-1 rounded bg-[#d1ece0] text-[#1a5c36] font-bold">Lead: {stage.leadRole}</span>
-            </div>
+            <span className="data text-[11px] bg-[#d1ece0] text-[#1a5c36] px-2.5 py-1 rounded font-bold">
+              Lead: {stage.leadRole}
+            </span>
           </div>
 
           <div>
             <Label>Core Deliverables</Label>
-            <ul className="space-y-1.5 mt-1.5 text-[12px] text-[#332f28]">
+            <ul className="space-y-1 mt-1.5 text-[12px] text-[#332f28]">
               {stage.coreDeliverables.map((del, i) => (
                 <li key={i} className="flex gap-2 items-start">
                   <span className="text-[#2d6a4f] font-bold shrink-0 mt-0.5">→</span>
@@ -1726,72 +1467,14 @@ function RoadmapAndBudgetSection() {
               ))}
             </ul>
           </div>
-
-          <div className="bg-[#f8f6f1] p-3 rounded-xl border border-[rgba(30,27,22,0.06)] text-[11.5px] text-[#4a4640]">
-            <strong>Stage Gate Approval Criteria:</strong> {stage.gateCriteria}
-          </div>
         </div>
       </div>
-
-      {/* Multidisciplinary Team & 3-Year Budget Breakdown */}
-      <div className="grid md:grid-cols-[1fr_360px] gap-8 max-w-6xl">
-        <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-6 bg-white shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <Label>3-Year Resource & Budget Breakdown</Label>
-            <span className="data text-[12px] bg-[#d1ece0] text-[#1a5c36] px-3 py-1 rounded-lg font-bold">
-              Total Budget: ${totalThreeYearBudget.toLocaleString()} USD
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            {BUDGET_BREAKDOWN.map((b, i) => (
-              <div key={i} className="border-b border-[rgba(30,27,22,0.05)] pb-3 text-[12px]">
-                <div className="flex justify-between items-baseline font-semibold text-[#1e1b16]">
-                  <span>{b.category}</span>
-                  <span className="data text-[#2d6a4f]">${b.threeYearTotalUSD.toLocaleString()}</span>
-                </div>
-                <p className="text-[11px] text-[#8a867e] mt-0.5">{b.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Required Personnel Roles */}
-        <div className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-5 bg-[#f2efe8] space-y-3">
-          <Label>Interdisciplinary Personnel Team</Label>
-          <ul className="space-y-2.5 text-[11.5px] text-[#332f28]">
-            <li className="flex gap-2">
-              <span className="font-bold text-[#2d6a4f] shrink-0">1 PI:</span>
-              <span>Traffic Systems & Network Optimization Lead</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-[#2d6a4f] shrink-0">1 Co-PI:</span>
-              <span>Power Electronics & Converter Control Systems Lead</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-[#1e1b16] shrink-0">2 PhDs:</span>
-              <span>1 in Traffic Micro-simulation (SUMO), 1 in PLECS & FCS-MPC</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-[#1e1b16] shrink-0">1 Res. Eng:</span>
-              <span>Co-simulation architecture (FMI) and Python pipelines</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-[#1e1b16] shrink-0">1 Lab Tech:</span>
-              <span>Hardware PCB fabrication, bench wiring & DAQ instrumentation</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </section>
+    </div>
   );
 }
 
-// ─── §12 NOVELTY CLAIMS & FALSIFICATION CHECKLIST ─────────────────────────────
-
 function NoveltyChecklistSection() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const listRef = useRevealList();
 
   const statusCls: Record<string, string> = {
     novel: "bg-[#d1ece0] text-[#1a5c36]",
@@ -1799,37 +1482,19 @@ function NoveltyChecklistSection() {
     established: "bg-[#eae7df] text-[#4a4640]",
   };
 
-  const verifiedCount = Object.values(checked).filter(Boolean).length;
-  const pct = NOVELTY_CHECKLIST.length > 0 ? (verifiedCount / NOVELTY_CHECKLIST.length) * 100 : 0;
-
   return (
-    <section id="novelty-checklist" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)]">
+    <div>
       <SectionHeader
         n="§12"
         title="Interactive novelty claims & falsification checklist"
         sub="Clearly isolating genuinely novel power-electronics contributions from 70 years of established hydrodynamic prior art."
       />
 
-      <div className="max-w-4xl mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-[11px] text-[#8a867e]">Claims verified during peer review</span>
-          <span className="data text-[11px] text-[#2d6a4f] font-medium">
-            {verifiedCount} / {NOVELTY_CHECKLIST.length} ({pct.toFixed(0)}%)
-          </span>
-        </div>
-        <div className="h-2 bg-[#eae7df] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[#2d6a4f] rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </div>
-
-      <div ref={listRef as React.RefObject<HTMLDivElement>} className="space-y-3 max-w-4xl">
+      <div className="space-y-3 max-w-4xl">
         {NOVELTY_CHECKLIST.map((item) => (
           <label
             key={item.id}
-            className={`reveal flex gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+            className={`flex gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
               checked[item.id]
                 ? "border-[rgba(45,106,79,0.25)] bg-[#d1ece0]/20"
                 : "border-[rgba(30,27,22,0.08)] bg-white hover:border-[rgba(30,27,22,0.16)]"
@@ -1855,15 +1520,12 @@ function NoveltyChecklistSection() {
           </label>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
 
-// ─── §13 PRIOR ART & PATENT SEARCH DOSSIER ────────────────────────────────────
-
 function PriorArtAndPatentsSection() {
   const [filterCat, setFilterCat] = useState<string>("all");
-  const listRef = useRevealList();
 
   const filtered = useMemo(() => {
     return EXPANDED_PRIOR_ART.filter((p) => {
@@ -1873,7 +1535,7 @@ function PriorArtAndPatentsSection() {
   }, [filterCat]);
 
   return (
-    <section id="prior-art-patents" className="section-anchor px-6 sm:px-12 py-12">
+    <div>
       <SectionHeader
         n="§13"
         title="Prior art database & patent search dossier"
@@ -1896,9 +1558,9 @@ function PriorArtAndPatentsSection() {
         ))}
       </div>
 
-      <div ref={listRef as React.RefObject<HTMLDivElement>} className="space-y-4 max-w-5xl">
+      <div className="space-y-4 max-w-5xl">
         {filtered.map((p, i) => (
-          <div key={p.id} className="reveal border border-[rgba(30,27,22,0.1)] rounded-xl p-5 bg-white shadow-2xs">
+          <div key={p.id} className="border border-[rgba(30,27,22,0.1)] rounded-xl p-5 bg-white shadow-2xs">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-2.5">
               <div className="flex items-start gap-3">
                 <span className="display text-[18px] italic font-light text-[#8a867e] leading-none mt-0.5 shrink-0">
@@ -1932,58 +1594,102 @@ function PriorArtAndPatentsSection() {
           </div>
         ))}
       </div>
-
-      <div className="mt-12 border-t border-[rgba(30,27,22,0.08)] pt-5 flex flex-wrap items-center justify-between gap-3 text-[10px] text-[#8a867e]">
-        <span className="display italic">Deep Research Platform · EEE × Urban Traffic Synthesis · Stage 0 Complete</span>
-        <span className="data">Version 3.0 · {new Date().toISOString().slice(0, 10)}</span>
-      </div>
-    </section>
+    </div>
   );
 }
 
-// ─── MASTER APP COMPONENT ─────────────────────────────────────────────────────
+function SimulationToolchainSection() {
+  return (
+    <div>
+      <SectionHeader
+        n="§5"
+        title="Simulation architecture & multi-scale test scenarios"
+        sub="Co-simulation toolchain matrix comparing SUMO, PLECS/Simscape, MATLAB, and FMI across cost, capabilities, and roles."
+      />
+
+      <div className="overflow-x-auto border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white mb-8 max-w-6xl">
+        <table className="w-full text-left text-[12px]">
+          <thead>
+            <tr className="border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8] text-[#4a4640] data text-[10px]">
+              <th className="py-3 px-4">Tool / Framework</th>
+              <th className="py-3 px-3">Role / Use-Case</th>
+              <th className="py-3 px-3">License & Cost</th>
+              <th className="py-3 px-4">Strengths</th>
+              <th className="py-3 px-4">Integration Approach</th>
+            </tr>
+          </thead>
+          <tbody>
+            {TOOLCHAIN_MATRIX.map((t, i) => (
+              <tr key={i} className="border-b border-[rgba(30,27,22,0.04)] hover:bg-[rgba(30,27,22,0.02)]">
+                <td className="py-3 px-4 font-semibold text-[#1e1b16]">{t.tool}</td>
+                <td className="py-3 px-3 text-[#2d6a4f] font-medium">{t.role}</td>
+                <td className="py-3 px-3 data text-[11px] text-[#8a867e]">{t.estimatedCost}</td>
+                <td className="py-3 px-4 text-[11.5px] text-[#4a4640] max-w-xs">{t.strengths}</td>
+                <td className="py-3 px-4 text-[11px] text-[#8a867e] max-w-xs">{t.integrationApproach}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ─── MASTER MULTI-PAGE APPLICATION COMPONENT ──────────────────────────────────
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState("title");
+  const [activePage, setActivePage] = useState<PageId>("brief");
 
+  // Synchronize with URL hash for clean client-side routing
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        }
-      },
-      { rootMargin: "-20% 0px -60% 0px", threshold: 0 }
-    );
-    SECTIONS.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    const handleHash = () => {
+      const hash = window.location.hash.replace("#/", "").replace("#", "") as PageId;
+      if (["brief", "implementation", "circuit-lab", "literature"].includes(hash)) {
+        setActivePage(hash);
+      }
+    };
+    handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
   }, []);
 
+  const changePage = (p: PageId) => {
+    setActivePage(p);
+    window.location.hash = `#/${p}`;
+  };
+
   return (
-    <div className="min-h-screen bg-[#f8f6f1] text-[#1e1b16]">
+    <div className="min-h-screen bg-[#f8f6f1] text-[#1e1b16] flex flex-col font-sans">
       <ScrollProgress />
-      <SpineNav active={activeSection} />
-      <div className="h-10 xl:h-0 block xl:hidden" />
-      <main className="xl:ml-12">
-        <TitleBlock />
-        <ExecutionGuideSection />
-        <ResearchObjectives />
-        <DecisionMatrixSection />
-        <DimensionalAnalysisSection />
-        <MathematicalModelsSection />
-        <SimulationToolchainSection />
-        <CircuitDesignSection />
-        <HardwarePrototypeSection />
-        <ExperimentalProtocolSection />
-        <FirstExperimentLabDemo />
-        <RiskRegisterSection />
-        <RoadmapAndBudgetSection />
-        <NoveltyChecklistSection />
-        <PriorArtAndPatentsSection />
+      <GlobalNavbar activePage={activePage} setActivePage={changePage} />
+
+      <main className="flex-1">
+        {activePage === "brief" && (
+          <ResearchBriefPage onNavigateToImplementation={() => changePage("implementation")} />
+        )}
+        {activePage === "implementation" && (
+          <ImplementationPage onNavigateToLab={() => changePage("circuit-lab")} />
+        )}
+        {activePage === "circuit-lab" && <CircuitLabPage />}
+        {activePage === "literature" && <LiteraturePage />}
       </main>
+
+      {/* Global Footer */}
+      <footer className="border-t border-[rgba(30,27,22,0.1)] py-8 px-6 sm:px-12 bg-white text-[12px] text-[#8a867e]">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="display italic font-medium text-[#1e1b16]">EEE × Urban Traffic Research Workspace</span>
+            <span>·</span>
+            <span>Stage 0 Validation Complete</span>
+          </div>
+          <div className="flex items-center gap-4 text-[11px] font-mono">
+            <button onClick={() => changePage("brief")} className="hover:text-[#1e1b16]">Research Brief</button>
+            <button onClick={() => changePage("implementation")} className="hover:text-[#2d6a4f] font-bold text-[#2d6a4f]">Implementation Blueprint</button>
+            <button onClick={() => changePage("circuit-lab")} className="hover:text-[#1e1b16]">Circuit Lab</button>
+            <button onClick={() => changePage("literature")} className="hover:text-[#1e1b16]">Literature & Patents</button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
