@@ -736,33 +736,49 @@
         </div>
       </div>
 
-      <div class="reveal flex flex-col lg:flex-row gap-8 max-w-5xl">
-        <div class="shrink-0">
-          <svg viewBox="0 0 400 300" class="w-full max-w-[420px] border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white shadow-sm" id="risk-svg">
-            <rect x="40" y="40" width="160" height="110" fill="rgba(255,82,82,0.04)"></rect>
-            <rect x="200" y="40" width="160" height="110" fill="rgba(255,82,82,0.09)"></rect>
-            <rect x="40" y="150" width="160" height="110" fill="rgba(45,106,79,0.05)"></rect>
-            <rect x="200" y="150" width="160" height="110" fill="rgba(217,119,6,0.05)"></rect>
+      <div class="reveal flex flex-col lg:flex-row gap-8 max-w-6xl">
+        <div class="shrink-0 lg:w-[380px] flex flex-col gap-3">
+          <div class="border border-[rgba(30,27,22,0.1)] rounded-2xl bg-white p-3 shadow-sm">
+            <div class="text-[11px] font-medium text-[#8a867e] mb-2 flex items-center justify-between">
+              <span class="font-mono uppercase tracking-wider text-[10px]">Cartesian Risk Quadrant</span>
+              <span class="text-[10px] text-[#2d6a4f] bg-[#d1ece0] px-2 py-0.5 rounded-full font-semibold">5 Active Failure Modes</span>
+            </div>
+            <svg viewBox="0 0 400 320" class="w-full rounded-xl bg-[#fdfcf9] border border-[rgba(30,27,22,0.06)]" id="risk-svg">
+              <rect x="44" y="44" width="156" height="116" fill="rgba(217,119,6,0.06)"></rect>
+              <rect x="200" y="44" width="156" height="116" fill="rgba(185,28,28,0.08)"></rect>
+              <rect x="44" y="160" width="156" height="116" fill="rgba(45,106,79,0.05)"></rect>
+              <rect x="200" y="160" width="156" height="116" fill="rgba(217,119,6,0.06)"></rect>
 
-            <text x="120" y="235" text-anchor="middle" fill="rgba(45,106,79,0.5)" font-size="9" font-family="JetBrains Mono" font-weight="500" letter-spacing="0.08em">Watch</text>
-            <text x="280" y="235" text-anchor="middle" fill="rgba(217,119,6,0.5)" font-size="9" font-family="JetBrains Mono" font-weight="500" letter-spacing="0.08em">Monitor</text>
-            <text x="120" y="65" text-anchor="middle" fill="rgba(217,119,6,0.5)" font-size="9" font-family="JetBrains Mono" font-weight="500" letter-spacing="0.08em">Manage</text>
-            <text x="280" y="65" text-anchor="middle" fill="rgba(185,28,28,0.5)" font-size="9" font-family="JetBrains Mono" font-weight="500" letter-spacing="0.08em">Address</text>
+              <text x="122" y="255" text-anchor="middle" fill="rgba(45,106,79,0.4)" font-size="10" font-family="JetBrains Mono" font-weight="600" letter-spacing="0.1em">WATCH</text>
+              <text x="278" y="255" text-anchor="middle" fill="rgba(217,119,6,0.4)" font-size="10" font-family="JetBrains Mono" font-weight="600" letter-spacing="0.1em">MONITOR</text>
+              <text x="122" y="70" text-anchor="middle" fill="rgba(217,119,6,0.4)" font-size="10" font-family="JetBrains Mono" font-weight="600" letter-spacing="0.1em">MANAGE</text>
+              <text x="278" y="70" text-anchor="middle" fill="rgba(185,28,28,0.4)" font-size="10" font-family="JetBrains Mono" font-weight="600" letter-spacing="0.1em">ADDRESS</text>
 
-            <line x1="40" y1="150" x2="360" y2="150" stroke="rgba(30,27,22,0.08)" stroke-width="1" stroke-dasharray="4 4"></line>
-            <line x1="200" y1="40" x2="200" y2="260" stroke="rgba(30,27,22,0.08)" stroke-width="1" stroke-dasharray="4 4"></line>
+              <line x1="44" y1="160" x2="356" y2="160" stroke="rgba(30,27,22,0.12)" stroke-width="1" stroke-dasharray="3 3"></line>
+              <line x1="200" y1="44" x2="200" y2="276" stroke="rgba(30,27,22,0.12)" stroke-width="1" stroke-dasharray="3 3"></line>
 
-            <line x1="40" y1="40" x2="40" y2="260" stroke="rgba(30,27,22,0.15)" stroke-width="1"></line>
-            <line x1="40" y1="260" x2="360" y2="260" stroke="rgba(30,27,22,0.15)" stroke-width="1"></line>
+              <line x1="44" y1="44" x2="44" y2="276" stroke="rgba(30,27,22,0.2)" stroke-width="1.5"></line>
+              <line x1="44" y1="276" x2="356" y2="276" stroke="rgba(30,27,22,0.2)" stroke-width="1.5"></line>
 
-            <text x="200" y="294" text-anchor="middle" fill="#8a867e" font-size="9" font-family="JetBrains Mono">Probability →</text>
-            <text x="12" y="150" text-anchor="middle" fill="#8a867e" font-size="9" font-family="JetBrains Mono" transform="rotate(-90 12 150)">Severity ↑</text>
+              <text x="200" y="310" text-anchor="middle" fill="#8a867e" font-size="9" font-family="JetBrains Mono">Probability of Occurrence →</text>
+              <text x="12" y="160" text-anchor="middle" fill="#8a867e" font-size="9" font-family="JetBrains Mono" transform="rotate(-90 12 160)">Severity of Breakdown ↑</text>
 
-            <g id="risk-dots-group"></g>
-          </svg>
+              <g id="risk-dots-group"></g>
+            </svg>
+
+            <div class="mt-3 pt-2.5 border-t border-[rgba(30,27,22,0.06)] flex items-center justify-between text-[10px] text-[#8a867e] font-mono">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#b91c1c]"></span> High/High</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#d97706]"></span> Moderate</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#2d6a4f]"></span> Contained</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-5 gap-1.5" id="risk-quick-switcher">
+            <!-- Injected by JS -->
+          </div>
         </div>
 
-        <div class="flex-1 space-y-3" id="risk-cards-container">
+        <div class="flex-1 flex flex-col gap-3" id="risk-cards-container">
           <!-- Injected by JS -->
         </div>
       </div>
@@ -1141,34 +1157,164 @@
 
     const RISKS = [
       {
+        id: "potential-field-breakdown",
         risk: "Non-Conservative Potential Field (Voltage Analogy Failure)",
+        shortLabel: "Potential Field Curl",
         severity: "high",
         probability: "high",
-        mitigation: "Travel cost line integrals along closed loops are non-zero due to one-way streets. Do NOT force Kirchhoff's Voltage Law. Reframe potential as artificial forward cost.",
+        quadrant: "Address Immediately (High / High)",
+        category: "Field Theory & Graph Topology",
+        threatSummary:
+          "Assuming traffic travel time or generalized cost behaves as a scalar electrostatic potential field V breaks down because travel costs in directed urban grids are non-conservative and path-dependent.",
+        failureMechanism:
+          "In DC circuits, the line integral of electric field around any closed loop is zero: ∮ E · dl = 0 (Kirchhoff's Voltage Law). In urban grids, one-way links, asymmetric left-turn delays, and time-varying green cycles create non-zero curl: ∮ ∇Φ · dr = ΔΦ_curl ≠ 0. Enforcing KVL forces unphysical zero-cost loops or negative impedance, producing infinite circulating ghost currents in standard nodal solvers.",
+        mathFormula: "∮_C ∇Φ · dr ≠ 0  \\implies  \\sum_{\\text{loop}} \\Delta V \\neq 0  \\quad (\\text{KVL Fails})",
+        formulaNote:
+          "Curl-free potential assumption fails on directed graphs; potential exists only as an artificial forward cost-to-go, not a conservative physical field.",
+        consequences: [
+          "Infinite circulation loops where simulated vehicles loop endlessly on circular paths with zero net simulated cost.",
+          "Singular or non-invertible network admittance matrices Y_bus when derived from symmetric Laplacian formulation.",
+          "Immediate rejection by transportation physics reviewers for forcing conservative physics onto non-conservative human travel."
+        ],
+        mitigationSteps: [
+          "Abandon KVL completely: Explicitly state in mathematical foundations that Kirchhoff's Voltage Law does not hold on urban road networks.",
+          "Retain Kirchhoff's Current Law (KCL): Preserve exact flow continuity (∑ q_in - ∑ q_out = dx/dt) as the sole conservative topological invariant.",
+          "Reframe Potential as Forward Cost-to-Go: Model Φ_i not as physical electrostatic voltage, but as an artificial dynamic programming value function (cost-to-destination).",
+          "Directional Non-Reciprocal Branches: Model one-way streets and signalized links as active directional diodes and controlled sources that prohibit reverse potential propagation."
+        ],
+        falsificationTest:
+          "3-Junction Asymmetric Loop Benchmark: Run static and dynamic assignment on a 3-bus triangle with one-way restrictions; verify that flow reaches Wardrop equilibrium without circulating ghost flows or negative link delays.",
+        validationStatus: "Mitigation Formulated & Verified in §5",
+        mitigation:
+          "Travel cost line integrals along closed loops are non-zero due to one-way streets. Do NOT force Kirchhoff's Voltage Law. Reframe potential as artificial forward cost.",
       },
       {
-        risk: "Prior-Art Rebranding Accusation",
+        id: "prior-art-overlap",
+        risk: "Prior-Art Rebranding Accusation (70-Year Literature Overlap)",
+        shortLabel: "Literature Overlap",
         severity: "high",
         probability: "medium",
-        mitigation: "The broad electrical analogy is 70 years old. Restrict novelty claims strictly to active semiconductor switching, FCS-MPC, and lost-green-time minimization.",
+        quadrant: "Address / Manage (High / Med)",
+        category: "Academic Rigor & Novelty Defensibility",
+        threatSummary:
+          "Metaphors comparing traffic flow to electric current date back 70 years to LWR (1955) and passive RLC circuits (1960s-1970s). Claiming novelty merely on 'traffic is like an electric circuit' guarantees peer-review rejection.",
+        failureMechanism:
+          "Academic literature already contains extensive hydraulic and resistor-grid analogies (Lighthill & Whitham 1955, Richards 1956, Schweitzer 1999, Varaiya 2013 max-pressure control, and UC Regents patent US9852631B2). Reviewers at top journals (IEEE T-ITS, IEEE Control Systems Letters) will issue desk rejections citing incremental terminology change without new mathematical artifacts.",
+        mathFormula: "\\Delta \\mathcal{M}_{\\text{novelty}} = \\{ \\text{FCS-MPC Switching Matrix } u(k) \\in \\{0,1\\}^M \\} \\cap \\{ \\lambda_{\\text{sw}} \\|\\Delta u\\|^2 \\text{ Lost-Time Penalty} \\}",
+        formulaNote:
+          "Novelty exists strictly at the intersection of discrete semiconductor switching representations and lost clearance-time minimization.",
+        consequences: [
+          "Desk rejection by IEEE Transactions editors for cosmetic rebranding of well-known max-pressure or CTM network flows.",
+          "Failure to establish patentable or publishable intellectual property boundaries.",
+          "Wasted research cycles duplicating 1970s analog circuit traffic simulator findings."
+        ],
+        mitigationSteps: [
+          "Disavow Passive Metaphors: Explicitly repudiate naive 'cars are electrons / roads are passive resistors' in §1 and the introduction.",
+          "Anchor Novelty in 3 Specific Deliverables: (1) Active multi-pole semiconductor switching bridge representation, (2) FCS-MPC with explicit switching penalties for yellow/all-red lost clearance, and (3) N-1 power grid contingency screening applied to traffic bottlenecks.",
+          "Published Literature Matrix: Maintain an exhaustive 70-year prior art matrix with explicit limitation boundaries for every seminal paper.",
+          "Direct Algorithmic Head-to-Head: Compare FCS-MPC directly against Max-Pressure (Varaiya 2013) and Webster fixed-time in benchmark simulation."
+        ],
+        falsificationTest:
+          "Head-to-Head Comparative Metric: FCS-MPC must demonstrate ≥15% reduction in lost clearance time and queue variance against Max-Pressure and CTM under identical 7-node demand profiles.",
+        validationStatus: "Mitigation Defined in §7 & §10",
+        mitigation:
+          "The broad electrical analogy is 70 years old. Restrict novelty claims strictly to active semiconductor switching, FCS-MPC, and lost-green-time minimization.",
       },
       {
+        id: "scope-overreach",
         risk: "Scope Overreach (Attempting City-Scale AI Optimization)",
+        shortLabel: "Scope Overreach",
         severity: "medium",
         probability: "high",
-        mitigation: "Do not attempt to solve city-wide traffic or build a commercial product. Restrict Stage 1 deliverable strictly to proving or disproving divergence on the 7-node benchmark.",
+        quadrant: "Manage Proactively (Med / High)",
+        category: "Methodology & Boundary Control",
+        threatSummary:
+          "Attempting to model an entire metropolitan city or claim real-time AI autonomous traffic dispatch in Stage 0 creates an unmanageable parameter space and produces unfalsifiable claims.",
+        failureMechanism:
+          "Real cities feature unmodeled mid-block friction, non-lane-based vehicle weaving (e.g. Indian mixed traffic), pedestrian jaywalking, parking friction, and noisy sensor telemetry. Prematurely deploying multi-intersection optimization introduces hundreds of confounding parameters, obscuring whether performance changes arise from the circuit formulation or random simulator artifacts.",
+        mathFormula: "\\text{Stage 0 Scope} \\equiv \\text{Gating on } \\mathcal{G}_{7\\text{-node}} = (V_7, E_{10}) \\quad \\text{before} \\quad \\mathcal{G}_{\\text{metro}} = (V_{500+}, E_{1200+})",
+        formulaNote:
+          "Mathematical representation must be falsified and proven robust on a canonical 7-node benchmark before corridor or city scaling.",
+        consequences: [
+          "Runaway simulation complexity with hundreds of untuned hyperparameters and calibration failures.",
+          "Inability to scientifically isolate causal factors behind throughput improvements.",
+          "Premature commercialization promises that fail under rigorous engineering scrutiny."
+        ],
+        mitigationSteps: [
+          "Strict Stage Gating Protocol: Stage 0 is strictly bounded to proving or disproving divergence on the canonical 7-node benchmark grid.",
+          "Falsification-First Stance: Adopt an explicit 'Try to break the idea first' philosophy, measuring where the representation fails rather than attempting to sell a solution.",
+          "Controlled Disturbance Scenarios: Restrict test cases to 4 canonical synthetic scenarios (Overload, Fault/N-1, Asymmetric Rush, Clearance Penalty Sweep).",
+          "Constrained Corridor Testbed: For real-world scaling, limit scope strictly to the linear Avinashi Road arterial corridor in Coimbatore before any 2D city mesh."
+        ],
+        falsificationTest:
+          "Closed-Loop Simulation Gate: The 7-node benchmark simulator must reproduce queue formation and spillback within 5% error margin of microscopic SUMO before any multi-corridor claims are made.",
+        validationStatus: "Enforced in §4 & §11",
+        mitigation:
+          "Do not attempt to solve city-wide traffic or build a commercial product. Restrict Stage 1 deliverable strictly to proving or disproving divergence on the 7-node benchmark.",
       },
       {
+        id: "data-provenance",
         risk: "Data Provenance Corruption in Coimbatore Case Study",
+        shortLabel: "Data Provenance",
         severity: "medium",
         probability: "medium",
-        mitigation: "Indian arterial data has mixed fidelity. Strictly enforce provenance badges (MEASURED, PUBLISHED, ESTIMATED, ASSUMED, SIMULATED). Never claim assumed values as empirical.",
+        quadrant: "Monitor Continuously (Med / Med)",
+        category: "Empirical Data Integrity & Sensor Telemetry",
+        threatSummary:
+          "Empirical data from the Avinashi Road arterial corridor in Coimbatore combines high-precision measured metrics with estimated and assumed parameters. Unlabeled data leads to false empirical validation.",
+        failureMechanism:
+          "Signal timing sheets and road geometries can be obtained from municipal authorities, but turn movement percentages, mid-block autorickshaw friction, and pedestrian crossing delays are frequently estimated. If assumed variables are quietly passed off as empirical measurements, model validation is scientifically fraudulent and will fail replication.",
+        mathFormula: "\\mathcal{D} = \\mathcal{D}_{\\text{MEASURED}} \\cup \\mathcal{D}_{\\text{PUBLISHED}} \\cup \\mathcal{D}_{\\text{ESTIMATED}} \\cup \\mathcal{D}_{\\text{ASSUMED}} \\quad [\\text{Strict Isolation}]",
+        formulaNote:
+          "Zero assumed parameters are permitted in empirical validation tables without explicit uncertainty bounds (±25%).",
+        consequences: [
+          "Model overfitting to fictitious synthetic turning counts that do not represent real arterial dynamics.",
+          "Immediate credibility loss during peer review upon discovery of ungrounded empirical claims.",
+          "Catastrophic failure if controller is tested against physical field hardware with mismatched assumptions."
+        ],
+        mitigationSteps: [
+          "5-Tier Provenance Classification: Every data point must display an immutable badge: MEASURED, PUBLISHED, ESTIMATED, ASSUMED, or SIMULATED.",
+          "Automated Pipeline Assertions: Code assertions reject any dataset where ASSUMED parameters leak into empirical comparison charts.",
+          "Monte Carlo Uncertainty Bounds: All ASSUMED parameters (e.g. saturation flow headways, turning splits) undergo ±20% sensitivity sweeps.",
+          "Open Data Specification: Publish raw sensor data, municipal clearance letters, and estimation notebooks in an open research repository."
+        ],
+        falsificationTest:
+          "Sensitivity Stability Gate: Key performance metrics (delay reduction, queue spillback rate) must not vary by more than ±12% when all ASSUMED parameters are varied over their full ±20% Monte Carlo distribution.",
+        validationStatus: "Enforced in §6 Corridor Model",
+        mitigation:
+          "Indian arterial data has mixed fidelity. Strictly enforce provenance badges (MEASURED, PUBLISHED, ESTIMATED, ASSUMED, SIMULATED). Never claim assumed values as empirical.",
       },
       {
+        id: "combinatorial-explosion",
         risk: "Combinatorial Explosion in Multi-Intersection FCS-MPC",
+        shortLabel: "Combinatorial Explosion",
         severity: "high",
         probability: "medium",
-        mitigation: "Candidate states scale as O(M^N). Mitigate by decomposing grid into 1-hop distributed consensus agents, keeping local optimization O(1).",
+        quadrant: "Address / Manage (High / Med)",
+        category: "Computational Complexity & Real-Time Control",
+        threatSummary:
+          "Evaluating candidate discrete switching states across multiple signalized junctions over a prediction horizon scales exponentially, exceeding real-time control limits.",
+        failureMechanism:
+          "In centralized FCS-MPC, each intersection has M admissible phase combinations. For an N-intersection network with prediction horizon N_p, the candidate trajectory space is Ω = O((M^N)^N_p). For a 7-intersection grid with M = 4 phases and N_p = 5, the search space reaches (4^7)^5 = (16,384)^5 ≈ 1.18 × 10^21 evaluations per control epoch. Real-time control requires decisions within Δt = 1.0 s, causing solver timeout and complete controller lockup.",
+        mathFormula: "\\Omega_{\\text{centralized}} = \\mathcal{O}\\left( (M^N)^{N_p} \\right) \\xrightarrow{\\text{Decomposition}} \\Omega_{\\text{distributed}} = \\mathcal{O}\\left( N \\cdot M^{N_p} \\right)",
+        formulaNote:
+          "Distributed 1-hop consensus decomposition reduces search complexity from exponential in network size N to linear in N.",
+        consequences: [
+          "Solver timeout causing dropped control cycles and default reversion to static fixed-time schedules.",
+          "Violent phase chattering or phase skips when search trees are arbitrarily truncated without safety guards.",
+          "Hardware processor overheating and inability to run on edge computing microcontrollers (ARM Cortex / DSP)."
+        ],
+        mitigationSteps: [
+          "Distributed 1-Hop Consensus Architecture: Decompose centralized optimization into local junction agents that exchange boundary queue forecasts only with 1-hop physical neighbors.",
+          "Power Electronics Sphere Decoding: Adapt sphere decoding algorithms from multi-level inverter FCS-MPC to aggressively prune branches that exceed queue or switching budgets.",
+          "Safety Clearance Interlocks: Hardcode 7-second minimum green dwell times and 4-second all-red clearance, eliminating >85% of infeasible transitions at each tree depth.",
+          "Multi-Resolution Time Horizon: Use high-resolution 1-second steps for the immediate horizon (k..k+2) and aggregated macroscopic cell steps for distant horizons (k+3..k+5)."
+        ],
+        falsificationTest:
+          "Real-Time Deadline Gate: On standard edge hardware (Raspberry Pi 4 / ARM Cortex-A72), 1-hop distributed FCS-MPC solver execution time must strictly satisfy t_solve < 120 ms for N=7 intersections under peak demand.",
+        validationStatus: "Mitigation Formulated in §4 Demo & §9 Math",
+        mitigation:
+          "Candidate states scale as O(M^N). Mitigate by decomposing grid into 1-hop distributed consensus agents, keeping local optimization O(1).",
       },
     ];
 
@@ -1700,6 +1846,7 @@
     function initRiskGrid() {
       const svgDots = document.getElementById("risk-dots-group");
       const cardsContainer = document.getElementById("risk-cards-container");
+      const quickSwitcher = document.getElementById("risk-quick-switcher");
       if (!svgDots || !cardsContainer) return;
 
       const riskPositions = [
@@ -1710,7 +1857,7 @@
         { x: 0.55, y: 0.74 },
       ];
 
-      let selectedIndex = null;
+      let selectedIndex = 0;
 
       function dotColor(r) {
         if (r.severity === "high" && r.probability === "high") return "#b91c1c";
@@ -1719,10 +1866,28 @@
       }
 
       function render() {
-        const pad = 40, plotW = 320, plotH = 220;
+        const pad = 44, plotW = 400 - pad * 2, plotH = 320 - pad * 2;
         const qx = (v) => pad + v * plotW;
         const qy = (v) => pad + (1 - v) * plotH;
 
+        // Render Quick Switcher Buttons
+        if (quickSwitcher) {
+          quickSwitcher.innerHTML = RISKS.map((r, i) => `
+            <button
+              onclick="selectRisk(${i})"
+              class="py-2 px-1 rounded-lg text-center font-mono text-[11px] font-semibold transition-all ${
+                selectedIndex === i
+                  ? 'bg-[#1e1b16] text-white shadow-sm'
+                  : 'bg-white border border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:bg-[#f2efe8]'
+              }"
+              title="${r.risk}"
+            >
+              #${i + 1}
+            </button>
+          `).join("");
+        }
+
+        // Render SVG Dots
         svgDots.innerHTML = RISKS.map((r, i) => {
           const px = qx(riskPositions[i].x);
           const py = qy(riskPositions[i].y);
@@ -1731,43 +1896,152 @@
 
           return `
             <g onclick="selectRisk(${i})" class="cursor-pointer">
-              ${isSelected ? `<circle cx="${px}" cy="${py}" r="16" fill="${dc}" opacity="0.15" />` : ""}
-              <circle cx="${px}" cy="${py}" r="10" fill="${dc}" opacity="${isSelected ? 1 : 0.8}" stroke="white" stroke-width="2" />
-              <text x="${px}" y="${py + 3.5}" text-anchor="middle" fill="white" font-size="9" font-family="JetBrains Mono" font-weight="500">${i + 1}</text>
+              ${isSelected ? `
+                <circle cx="${px}" cy="${py}" r="22" fill="${dc}" opacity="0.18" class="animate-pulse" />
+                <circle cx="${px}" cy="${py}" r="16" fill="none" stroke="${dc}" stroke-width="1.5" stroke-dasharray="3 3" />
+              ` : ""}
+              <circle cx="${px}" cy="${py}" r="${isSelected ? 12 : 10}" fill="${dc}" opacity="${isSelected ? 1 : 0.85}" stroke="white" stroke-width="2.5" />
+              <text x="${px}" y="${py + 3.5}" text-anchor="middle" fill="white" font-size="9" font-family="JetBrains Mono" font-weight="600">${i + 1}</text>
             </g>
           `;
         }).join("");
 
+        // Render Cards (WITHOUT .reveal class so they remain 100% visible on update)
         cardsContainer.innerHTML = RISKS.map((r, i) => {
           const isSelected = selectedIndex === i;
           const dc = dotColor(r);
 
           return `
-            <div onclick="selectRisk(${i})" class="reveal border rounded-xl px-4 py-3.5 cursor-pointer transition-all duration-200 ${
-              isSelected ? "border-[rgba(30,27,22,0.25)] bg-white shadow-sm" : "border-[rgba(30,27,22,0.08)] bg-white hover:border-[rgba(30,27,22,0.16)]"
+            <div class="border rounded-xl transition-all duration-200 overflow-hidden ${
+              isSelected
+                ? "border-[rgba(30,27,22,0.3)] bg-white shadow-md ring-1 ring-[#1e1b16]/10"
+                : "border-[rgba(30,27,22,0.08)] bg-white hover:border-[rgba(30,27,22,0.2)]"
             }">
-              <div class="flex items-start gap-3">
-                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: ${dc}">
-                  <span class="data text-[9px] text-white font-medium">${i + 1}</span>
+              <!-- Header Row (Clickable) -->
+              <div onclick="selectRisk(${i})" class="px-4 py-3.5 flex items-center gap-3 cursor-pointer select-none bg-gradient-to-r from-transparent via-transparent to-[rgba(30,27,22,0.01)]">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-mono text-[10px] text-white font-bold transition-transform" style="background: ${dc}">
+                  ${i + 1}
                 </div>
+
                 <div class="flex-1 min-w-0">
-                  <div class="flex flex-wrap items-center gap-2 mb-1">
-                    <span class="text-[12px] font-medium text-[#1e1b16] leading-snug">${r.risk}</span>
-                    <div class="flex gap-1.5 ml-auto font-data text-[9px]">
-                      <span class="px-1.5 py-0.5 rounded font-medium ${r.severity === 'high' ? 'bg-[#fdd5d5] text-[#991b1b]' : 'bg-[#fde8c8] text-[#7c3811]'}">S:${r.severity}</span>
-                      <span class="px-1.5 py-0.5 rounded font-medium ${r.probability === 'high' ? 'bg-[#fdd5d5] text-[#991b1b]' : 'bg-[#fde8c8] text-[#7c3811]'}">P:${r.probability}</span>
-                    </div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-[13px] font-semibold text-[#1e1b16] leading-snug">${r.risk}</span>
+                    <span class="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-[#eae7df] text-[#4a4640]">${r.category}</span>
                   </div>
-                  ${isSelected ? `
-                    <div class="mt-2 pt-2 border-t border-[rgba(30,27,22,0.06)]">
-                      <div class="flex items-start gap-1.5">
-                        <span class="text-[10px] font-semibold text-[#2d6a4f] shrink-0 mt-0.5">→</span>
-                        <p class="text-[11px] text-[#4a4640] leading-relaxed">${r.mitigation}</p>
-                      </div>
-                    </div>
-                  ` : ""}
+                </div>
+
+                <div class="flex items-center gap-2 shrink-0">
+                  <div class="flex gap-1 font-mono text-[9px]">
+                    <span class="px-1.5 py-0.5 rounded font-semibold ${r.severity === 'high' ? 'bg-[#fdd5d5] text-[#991b1b]' : 'bg-[#fde8c8] text-[#7c3811]'}">S:${r.severity}</span>
+                    <span class="px-1.5 py-0.5 rounded font-semibold ${r.probability === 'high' ? 'bg-[#fdd5d5] text-[#991b1b]' : 'bg-[#fde8c8] text-[#7c3811]'}">P:${r.probability}</span>
+                  </div>
+                  <span class="text-[12px] transition-transform duration-200 text-[#8a867e] ${isSelected ? 'rotate-90 text-[#1e1b16]' : ''}">▶</span>
                 </div>
               </div>
+
+              <!-- Elaborate Breakdown Drawer -->
+              ${isSelected ? `
+                <div class="px-5 pb-5 pt-2 border-t border-[rgba(30,27,22,0.07)] bg-[#fdfcf9] space-y-4 text-[#1e1b16]">
+                  <!-- Status & Quadrant Bar -->
+                  <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono pt-1">
+                    <span class="px-2.5 py-1 rounded bg-[#f2efe8] text-[#4a4640] border border-[rgba(30,27,22,0.08)]">
+                      <strong>Quadrant:</strong> ${r.quadrant}
+                    </span>
+                    <span class="px-2.5 py-1 rounded bg-[#d1ece0] text-[#1a5c36] font-semibold border border-[#2d6a4f]/20">
+                      ✓ ${r.validationStatus}
+                    </span>
+                  </div>
+
+                  <!-- Threat Statement -->
+                  <div>
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-[#8a867e] font-semibold mb-1">
+                      Executive Scientific Threat
+                    </div>
+                    <p class="text-[12px] text-[#2c2822] leading-relaxed bg-white p-3 rounded-lg border border-[rgba(30,27,22,0.08)] shadow-2xs font-medium">
+                      ${r.threatSummary}
+                    </p>
+                  </div>
+
+                  <!-- Root Cause & Mathematical Failure Mechanism -->
+                  <div class="space-y-2">
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-[#8a867e] font-semibold">
+                      Root Cause & Physical/Mathematical Failure Mechanism
+                    </div>
+                    <div class="text-[12px] text-[#4a4640] leading-relaxed bg-white p-3.5 rounded-lg border border-[rgba(30,27,22,0.08)] space-y-2.5">
+                      <p>${r.failureMechanism}</p>
+                      ${r.mathFormula ? `
+                        <div class="bg-[#1e1b16] text-[#e5e0d8] font-mono text-[11px] p-3 rounded-md overflow-x-auto tracking-wide border border-black/10">
+                          <code>${r.mathFormula}</code>
+                        </div>
+                      ` : ""}
+                      ${r.formulaNote ? `
+                        <div class="text-[10px] font-mono text-[#8a867e] italic">
+                          Note: ${r.formulaNote}
+                        </div>
+                      ` : ""}
+                    </div>
+                  </div>
+
+                  <!-- Consequences If Unmitigated -->
+                  <div>
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-[#b91c1c] font-semibold mb-1.5 flex items-center gap-1.5">
+                      <span>⚠</span> Critical Consequences (If Left Unmitigated)
+                    </div>
+                    <ul class="bg-[#fef2f2] border border-[#fecaca] rounded-lg p-3 space-y-1.5 text-[11px] text-[#991b1b]">
+                      ${r.consequences.map(c => `
+                        <li class="flex items-start gap-2">
+                          <span class="text-[#dc2626] font-bold shrink-0 mt-0.5">•</span>
+                          <span class="leading-snug">${c}</span>
+                        </li>
+                      `).join("")}
+                    </ul>
+                  </div>
+
+                  <!-- 4-Step Engineering Mitigation Protocol -->
+                  <div>
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-[#2d6a4f] font-semibold mb-1.5 flex items-center gap-1.5">
+                      <span>🛡</span> Rigorous Scientific Mitigation Protocol
+                    </div>
+                    <div class="space-y-2">
+                      ${r.mitigationSteps.map((step, si) => `
+                        <div class="flex items-start gap-2.5 text-[11.5px] bg-white p-2.5 rounded-lg border border-[rgba(30,27,22,0.07)] text-[#332f28] leading-relaxed">
+                          <span class="w-5 h-5 rounded-full bg-[#d1ece0] text-[#1a5c36] font-mono text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                            ${si + 1}
+                          </span>
+                          <span class="flex-1">${step}</span>
+                        </div>
+                      `).join("")}
+                    </div>
+                  </div>
+
+                  <!-- Benchmark Falsification Test Gate -->
+                  <div class="bg-[#f2efe8] border border-[rgba(30,27,22,0.1)] rounded-lg p-3 text-[11px]">
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-[#1e1b16] font-bold mb-1 flex items-center gap-1.5">
+                      <span>🔬</span> Benchmark Falsification Criterion
+                    </div>
+                    <p class="text-[#4a4640] leading-relaxed font-mono text-[10.5px]">
+                      ${r.falsificationTest}
+                    </p>
+                  </div>
+
+                  <!-- Stepper controls -->
+                  <div class="flex items-center justify-between pt-2 border-t border-[rgba(30,27,22,0.06)] text-[10px] font-mono text-[#8a867e]">
+                    <button
+                      onclick="event.stopPropagation(); selectRisk(${(i - 1 + RISKS.length) % RISKS.length})"
+                      class="hover:text-[#1e1b16] px-2 py-1 rounded hover:bg-[#eae7df] transition-colors"
+                    >
+                      ← Previous Mode
+                    </button>
+                    <span>Mode ${i + 1} of ${RISKS.length}</span>
+                    <button
+                      onclick="event.stopPropagation(); selectRisk(${(i + 1) % RISKS.length})"
+                      class="hover:text-[#1e1b16] px-2 py-1 rounded hover:bg-[#eae7df] transition-colors"
+                    >
+                      Next Mode →
+                    </button>
+                  </div>
+                </div>
+              ` : ""}
             </div>
           `;
         }).join("");
