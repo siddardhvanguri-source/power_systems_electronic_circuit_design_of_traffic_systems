@@ -12,9 +12,11 @@ import {
   RESEARCH_ROADMAP_STAGES,
   BUDGET_BREAKDOWN,
   NOVELTY_CHECKLIST,
+  EXECUTION_STEPS,
   type Verdict,
   type CandidateMapping,
   type TestScenario,
+  type ExecutionStep,
 } from "./data";
 
 // ─── SCROLL PROGRESS ──────────────────────────────────────────────────────────
@@ -268,6 +270,202 @@ function TitleBlock() {
         <p className="text-[12px] text-[#7c5a3a] leading-relaxed">
           <strong>Scientific Rigor & Falsifiability:</strong> Every candidate mapping is explicitly tagged as <span className="bg-[#d1ece0] text-[#1a5c36] px-1.5 py-0.2 rounded font-mono text-[10px]">Source</span>, <span className="bg-[#dbeafe] text-[#1e3a8a] px-1.5 py-0.2 rounded font-mono text-[10px]">Hypothesis</span>, or <span className="bg-[#fde8c8] text-[#7c3811] px-1.5 py-0.2 rounded font-mono text-[10px]">Result</span>. We actively search for failure boundaries rather than forcing mathematical equivalence where travel costs curl is non-zero.
         </p>
+      </div>
+    </section>
+  );
+}
+
+// ─── §EXEC EXECUTION BLUEPRINT & IMPLEMENTATION GUIDE ──────────────────────
+
+function ExecutionGuideSection() {
+  const [activeStepIdx, setActiveStepIdx] = useState<number>(0);
+  const [copied, setCopied] = useState<boolean>(false);
+  const ref = useReveal();
+  const step = EXECUTION_STEPS[activeStepIdx];
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(step.exactCodeOrCommands.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const difficultyCls = (diff: ExecutionStep["difficulty"]) => {
+    if (diff === "Beginner / Fast") return "bg-[#d1ece0] text-[#1a5c36]";
+    if (diff === "Intermediate") return "bg-[#dbeafe] text-[#1e3a8a]";
+    return "bg-[#fde8c8] text-[#7c3811]";
+  };
+
+  return (
+    <section id="execution-guide" className="section-anchor px-6 sm:px-12 py-12 border-b border-[rgba(30,27,22,0.08)] bg-[#f2efe8]/30">
+      <SectionHeader
+        n="§EXEC"
+        title="Execution blueprint: How to implement this research step-by-step"
+        sub="A straightforward, zero-fluff engineering guide translating Deep Research 3 into immediate runnable software, SPICE netlists, $100 lab hardware, and publishable papers."
+      />
+
+      {/* Quick Summary Banner */}
+      <div className="bg-white border border-[rgba(45,106,79,0.2)] rounded-2xl p-5 mb-8 shadow-xs max-w-6xl">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#2d6a4f] text-white flex items-center justify-center font-mono font-bold text-[14px]">
+              ▶
+            </div>
+            <div>
+              <div className="text-[14px] font-semibold text-[#1e1b16]">The 5-Step Path from Concept to Working Demonstration</div>
+              <div className="text-[12px] text-[#8a867e]">Follow these sequential phases to replicate, validate, and build the physical traffic-circuit system.</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 font-mono text-[11px]">
+            <span className="bg-[#d1ece0] text-[#1a5c36] px-2.5 py-1 rounded-md font-bold">Total Cost: ~$120 USD</span>
+            <span className="bg-[#f2efe8] text-[#4a4640] px-2.5 py-1 rounded-md">Timeline: 2–6 Months</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 5-Step Horizontal Tab Navigator */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-8 max-w-6xl">
+        {EXECUTION_STEPS.map((s, idx) => {
+          const isActive = activeStepIdx === idx;
+          return (
+            <button
+              key={s.stepNumber}
+              onClick={() => setActiveStepIdx(idx)}
+              className={`p-3.5 rounded-xl text-left transition-all border flex flex-col justify-between ${
+                isActive
+                  ? "bg-[#2d6a4f] border-[#2d6a4f] text-white shadow-sm ring-2 ring-[#2d6a4f]/20"
+                  : "bg-white border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:border-[rgba(30,27,22,0.2)] hover:bg-[#fcfbf9]"
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className={`data text-[9px] font-bold uppercase tracking-wider ${isActive ? "text-[#d1ece0]" : "text-[#8a867e]"}`}>
+                    Step {s.stepNumber}
+                  </span>
+                  <span className={`data text-[8.5px] px-1.5 py-0.2 rounded font-semibold ${isActive ? "bg-white/20 text-white" : "bg-[#f2efe8] text-[#4a4640]"}`}>
+                    {s.timeframe}
+                  </span>
+                </div>
+                <div className={`text-[12px] font-semibold leading-snug line-clamp-2 ${isActive ? "text-white" : "text-[#1e1b16]"}`}>
+                  {s.title.split("(")[0]}
+                </div>
+              </div>
+              <div className={`text-[10px] mt-2 font-mono ${isActive ? "text-white/80" : "text-[#2d6a4f] font-semibold"}`}>
+                {s.costEstimate.split("(")[0]}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Active Step Deep Card */}
+      <div ref={ref as React.RefObject<HTMLDivElement>} className="reveal border border-[rgba(30,27,22,0.12)] rounded-2xl p-6 sm:p-8 bg-white shadow-sm max-w-6xl space-y-6">
+        {/* Step Header */}
+        <div className="flex flex-wrap items-baseline justify-between gap-3 pb-4 border-b border-[rgba(30,27,22,0.08)]">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="data text-[10px] text-[#2d6a4f] font-bold bg-[#d1ece0] px-2 py-0.5 rounded">
+                {step.badge}
+              </span>
+              <span className={`data text-[10px] font-semibold px-2 py-0.5 rounded ${difficultyCls(step.difficulty)}`}>
+                {step.difficulty}
+              </span>
+              <span className="data text-[10px] text-[#8a867e]">
+                Est. Duration: <strong>{step.timeframe}</strong>
+              </span>
+            </div>
+            <h3 className="display text-[22px] font-medium text-[#1e1b16] mt-1">
+              Step {step.stepNumber}: {step.title}
+            </h3>
+          </div>
+          <div className="data text-[12px] bg-[#f8f6f1] border border-[rgba(30,27,22,0.08)] px-3.5 py-1.5 rounded-lg text-[#1e1b16] font-bold">
+            Budget: {step.costEstimate}
+          </div>
+        </div>
+
+        {/* Plain-English Overview */}
+        <div className="bg-[#f8f6f1] p-4 rounded-xl border border-[rgba(30,27,22,0.06)] text-[13px] text-[#2c2822] leading-relaxed">
+          <strong className="text-[#2d6a4f]">Plain-English Mission:</strong> {step.summary}
+        </div>
+
+        {/* Actionable Steps & Code/Command Columns */}
+        <div className="grid lg:grid-cols-[1fr_1.1fr] gap-6">
+          {/* Left: Actionable Checklist */}
+          <div className="space-y-4">
+            <div>
+              <Label>How to execute this step (Checklist)</Label>
+              <div className="space-y-2.5 mt-2">
+                {step.howToStart.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3 text-[12.5px] bg-[#fcfbf9] p-3 rounded-xl border border-[rgba(30,27,22,0.06)] text-[#332f28] leading-relaxed">
+                    <span className="w-5 h-5 rounded-full bg-[#2d6a4f] text-white font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {idx + 1}
+                    </span>
+                    <span className="flex-1">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pitfall & Verification Gates */}
+            <div className="space-y-2.5 pt-2">
+              <div className="bg-[#fdd5d5]/30 border border-[#fca5a5] rounded-xl p-3.5">
+                <div className="text-[10px] font-mono font-bold text-[#b91c1c] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <span>⚠</span> Common Pitfall to Avoid
+                </div>
+                <p className="text-[11.5px] text-[#7f1d1d] leading-relaxed">{step.keyPitfallToAvoid}</p>
+              </div>
+
+              <div className="bg-[#d1ece0]/30 border border-[#a7f3d0] rounded-xl p-3.5">
+                <div className="text-[10px] font-mono font-bold text-[#1a5c36] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  <span>✓</span> Verification Milestone Gate
+                </div>
+                <p className="text-[11.5px] text-[#065f46] leading-relaxed font-mono">{step.verificationGate}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Runnable Code or Command Box */}
+          <div className="space-y-2 flex flex-col">
+            <div className="flex items-center justify-between">
+              <Label>{step.exactCodeOrCommands.title}</Label>
+              <button
+                onClick={handleCopy}
+                className="data text-[10px] bg-[#f2efe8] hover:bg-[#eae7df] border border-[rgba(30,27,22,0.1)] px-2.5 py-1 rounded transition-colors text-[#1e1b16] font-semibold flex items-center gap-1"
+              >
+                {copied ? "✓ Copied!" : "Copy Code"}
+              </button>
+            </div>
+
+            <div className="bg-[#1e1b16] text-[#e5e0d8] rounded-xl p-4 font-mono text-[11px] overflow-x-auto flex-1 border border-black/20 max-h-[420px] no-scrollbar">
+              <pre>
+                <code>{step.exactCodeOrCommands.code}</code>
+              </pre>
+            </div>
+            <div className="text-[10px] text-[#8a867e] italic text-right">
+              Language: <span className="font-mono text-[#2d6a4f] uppercase">{step.exactCodeOrCommands.language}</span> · Ready to execute locally
+            </div>
+          </div>
+        </div>
+
+        {/* Stepper Navigation */}
+        <div className="flex items-center justify-between pt-4 border-t border-[rgba(30,27,22,0.08)] text-[11px] font-mono">
+          <button
+            disabled={activeStepIdx === 0}
+            onClick={() => setActiveStepIdx((s) => Math.max(0, s - 1))}
+            className="px-3.5 py-1.5 rounded-lg bg-[#f2efe8] text-[#1e1b16] font-semibold hover:bg-[#eae7df] disabled:opacity-40 transition-colors"
+          >
+            ← Previous Phase
+          </button>
+          <span className="text-[#8a867e]">
+            Execution Phase {step.stepNumber} of {EXECUTION_STEPS.length}
+          </span>
+          <button
+            disabled={activeStepIdx === EXECUTION_STEPS.length - 1}
+            onClick={() => setActiveStepIdx((s) => Math.min(EXECUTION_STEPS.length - 1, s + 1))}
+            className="px-3.5 py-1.5 rounded-lg bg-[#2d6a4f] text-white font-semibold hover:bg-[#23533e] disabled:opacity-40 transition-colors shadow-xs"
+          >
+            Next Phase →
+          </button>
+        </div>
       </div>
     </section>
   );
@@ -1771,6 +1969,7 @@ export default function App() {
       <div className="h-10 xl:h-0 block xl:hidden" />
       <main className="xl:ml-12">
         <TitleBlock />
+        <ExecutionGuideSection />
         <ResearchObjectives />
         <DecisionMatrixSection />
         <DimensionalAnalysisSection />

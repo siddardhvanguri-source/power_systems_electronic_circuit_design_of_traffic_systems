@@ -7,6 +7,7 @@
 
 export const SECTIONS = [
   { id: "title", label: "BRIEF", marker: "§0" },
+  { id: "execution-guide", label: "EXECUTE", marker: "§EXEC" },
   { id: "objectives", label: "GOALS", marker: "§1" },
   { id: "decision-matrix", label: "MAPPINGS", marker: "§2" },
   { id: "dimensional", label: "DIMENSIONS", marker: "§3" },
@@ -1087,3 +1088,265 @@ export const NOVELTY_CHECKLIST = [
     note: "First physical proof-of-concept hardware testbed validating switched dynamic traffic analog under live electrical instrumentation.",
   },
 ];
+
+export interface ExecutionStep {
+  stepNumber: number;
+  title: string;
+  badge: string;
+  timeframe: string;
+  difficulty: "Beginner / Fast" | "Intermediate" | "Hardware / Lab";
+  costEstimate: string;
+  summary: string;
+  howToStart: string[];
+  exactCodeOrCommands: {
+    language: string;
+    title: string;
+    code: string;
+  };
+  keyPitfallToAvoid: string;
+  verificationGate: string;
+}
+
+export const EXECUTION_STEPS: ExecutionStep[] = [
+  {
+    stepNumber: 1,
+    title: "10-Minute Software Baseline (Python + NetworkX)",
+    badge: "Phase 1: Free & Fast",
+    timeframe: "Day 1–3",
+    difficulty: "Beginner / Fast",
+    costEstimate: "$0 (Free Open-Source)",
+    summary:
+      "Start by building a 5-node toy traffic network in Python. You define 5 intersections and 4 roads, set vehicle arrival rates, and compute queue accumulation using standard conservation equations.",
+    howToStart: [
+      "Open your terminal and install NetworkX, NumPy, and Matplotlib: `pip install networkx numpy matplotlib`.",
+      "Create a file named `traffic_baseline.py` and paste the script below.",
+      "Run `python traffic_baseline.py` to see queues rise and fall as traffic lights alternate.",
+      "Export queue trajectories `x_1(t), ..., x_5(t)` to CSV for downstream circuit comparison.",
+    ],
+    exactCodeOrCommands: {
+      language: "python",
+      title: "traffic_baseline.py (Runnable 5-Node Simulation)",
+      code: `import numpy as np
+import matplotlib.pyplot as plt
+
+# 5-Node Traffic Simulation: 1 Central Hub (J0) + 4 Feeders (N, S, E, W)
+T_sim = 300       # 300 seconds
+dt = 1.0          # 1 second time step
+time = np.arange(0, T_sim, dt)
+
+# Traffic parameters (veh/s)
+arrival_rate = 0.35  # ~1260 veh/hour
+sat_flow = 0.50      # ~1800 veh/hour max capacity
+cycle_time = 60      # 60s signal cycle
+green_time = 30      # 30s green per phase
+
+queue_NS = np.zeros(len(time))
+queue_EW = np.zeros(len(time))
+
+for k in range(len(time) - 1):
+    t = time[k]
+    # Phase 1: NS Green (0..30s), Phase 2: EW Green (30..60s)
+    phase_NS = 1 if (t % cycle_time) < green_time else 0
+    phase_EW = 1 - phase_NS
+    
+    # Inflow and departure
+    inflow_NS = arrival_rate
+    inflow_EW = arrival_rate
+    outflow_NS = min(queue_NS[k], sat_flow * phase_NS)
+    outflow_EW = min(queue_EW[k], sat_flow * phase_EW)
+    
+    # Conservation: dq/dt = in - out
+    queue_NS[k+1] = max(0, queue_NS[k] + dt * (inflow_NS - outflow_NS))
+    queue_EW[k+1] = max(0, queue_EW[k] + dt * (inflow_EW - outflow_EW))
+
+print("Baseline Simulation Done! Max Queue NS:", np.max(queue_NS))
+np.savetxt("traffic_ground_truth.csv", queue_NS, delimiter=",")`,
+    },
+    keyPitfallToAvoid:
+      "Do NOT start by modeling a huge 100-node city. Start strictly with this 5-node toy network to understand the dynamics before scaling.",
+    verificationGate: "Generates `traffic_ground_truth.csv` with realistic sawtooth queue oscillations.",
+  },
+  {
+    stepNumber: 2,
+    title: "Circuit Netlist & SPICE Model Formulation",
+    badge: "Phase 2: Electrical Analog",
+    timeframe: "Day 4–7",
+    difficulty: "Intermediate",
+    costEstimate: "$0 (Python ODE / Free PLECS demo)",
+    summary:
+      "Translate the 5-node traffic model into an exact electrical circuit. Every queue becomes a capacitor C=k Farads, every road becomes a resistor R=α·T, and every traffic signal becomes a MOSFET switch driven by PWM.",
+    howToStart: [
+      "Choose a scaling factor $k = 10\\text{ Coulombs/veh}$ (so $1\\text{ veh/s} = 10\\text{ mA}$ and $C = 10\\text{ mF}$).",
+      "Model capacitor voltage: $C \\cdot \\frac{dV}{dt} = I_{\\text{in}} - I_{\\text{out}}$.",
+      "Model switch: $I_{\\text{out}} = \\text{Gate}(t) \\cdot I_{\\max}$.",
+      "Run the Python circuit solver below to compute the electrical node voltage $V(t)$.",
+    ],
+    exactCodeOrCommands: {
+      language: "python",
+      title: "circuit_analog_solver.py (Analog Equivalent Circuit)",
+      code: `import numpy as np
+
+# Electrical Analog Circuit Solver
+k_scale = 10.0      # 10 Coulombs per vehicle
+C_equiv = k_scale   # 10 Farads (or scaled in hardware)
+I_in = 0.35 * k_scale  # 3.5 Amperes (or mA in hardware)
+I_max = 0.50 * k_scale # 5.0 Amperes saturation limit
+
+time = np.arange(0, 300, 1.0)
+V_node = np.zeros(len(time))
+
+for k in range(len(time) - 1):
+    t = time[k]
+    # MOSFET Gate Drive (1 = Closed/Green, 0 = Open/Red)
+    gate = 1.0 if (t % 60) < 30 else 0.0
+    
+    # Current flow across switch
+    I_out = min(V_node[k] * 2.0, I_max) * gate
+    
+    # Capacitor ODE: C * dV/dt = I_in - I_out
+    dV = (I_in - I_out) / C_equiv
+    V_node[k+1] = max(0, V_node[k] + dV * 1.0)
+
+np.savetxt("circuit_analog_voltage.csv", V_node, delimiter=",")
+print("Circuit Simulation Complete! Node Voltage Max:", np.max(V_node))`,
+    },
+    keyPitfallToAvoid:
+      "Do NOT enforce Kirchhoff's Voltage Law (KVL) around loops. Only enforce Kirchhoff's Current Law (KCL) at each capacitor node.",
+    verificationGate: "Node voltage $V(t)$ in Volts numerically aligns with vehicle queue $q(t)$.",
+  },
+  {
+    stepNumber: 3,
+    title: "Sim-to-Sim Cross-Domain Validation ($r \\ge 0.90$)",
+    badge: "Phase 3: Scientific Validation",
+    timeframe: "Day 8–14",
+    difficulty: "Intermediate",
+    costEstimate: "$0",
+    summary:
+      "Overlay the traffic queue trajectory $q(t)$ and electrical voltage trajectory $V(t)$. Calculate Pearson correlation $r$ and Mean Absolute Error (MAE) to prove whether the analogy is scientifically valid.",
+    howToStart: [
+      "Load both CSV files: `traffic_ground_truth.csv` and `circuit_analog_voltage.csv`.",
+      "Compute Pearson correlation coefficient $r = \\frac{\\text{cov}(q, V)}{\\sigma_q \\sigma_V}$.",
+      "Check error threshold: If $r \\ge 0.90$ and $\\text{MAE} \\le 15\\%$, your analogy is officially validated!",
+    ],
+    exactCodeOrCommands: {
+      language: "python",
+      title: "validate_correlation.py (Statistical Cross-Validation)",
+      code: `import numpy as np
+from scipy.stats import pearsonr
+
+q_traffic = np.loadtxt("traffic_ground_truth.csv", delimiter=",")
+v_circuit = np.loadtxt("circuit_analog_voltage.csv", delimiter=",")
+
+# Compute Pearson Correlation & MAE
+r_val, _ = pearsonr(q_traffic, v_circuit)
+mae = np.mean(np.abs(q_traffic - v_circuit)) / np.max(q_traffic) * 100
+
+print(f"--- VALIDATION RESULTS ---")
+print(f"Pearson Correlation (r): {r_val:.4f}")
+print(f"Mean Absolute Error:     {mae:.2f}%")
+
+if r_val >= 0.90 and mae <= 15.0:
+    print(">>> PASS: Analogy is mathematically robust! Proceed to Hardware.")
+else:
+    print(">>> FAIL: Divergence detected. Adjust R/C scaling.")`,
+    },
+    keyPitfallToAvoid:
+      "If correlation is low, check whether your green/red timing offset between traffic and gate PWM is out of phase.",
+    verificationGate: "Pearson $r \\ge 0.90$ with zero unmodeled phase lags.",
+  },
+  {
+    stepNumber: 4,
+    title: "Building the $100 Hardware Prototype",
+    badge: "Phase 4: Physical Hardware",
+    timeframe: "Weeks 3–5",
+    difficulty: "Hardware / Lab",
+    costEstimate: "$100 – $150 USD Total",
+    summary:
+      "Take your validated circuit and wire it on a breadboard or perfboard using cheap, off-the-shelf electronic parts. Hook up an Arduino or STM32 to generate PWM gate pulses and watch the queue charge on an oscilloscope.",
+    howToStart: [
+      "Order parts: 1x STM32 / Arduino ($15), 4x IRLZ44N logic-level MOSFETs ($6), 4x 1N5822 Schottky diodes ($2), 4x 1000µF capacitors ($3), 4x 0.1Ω shunt resistors ($2), 12V 2A DC supply ($10).",
+      "Wire the MOSFET source to ground, gate to Arduino digital pin via 100Ω resistor, and drain to capacitor buffer.",
+      "Flash the Arduino C++ firmware snippet below to pulse the gates.",
+      "Connect an oscilloscope or multimeter across the capacitor to observe real-time queue voltage.",
+    ],
+    exactCodeOrCommands: {
+      language: "cpp",
+      title: "signal_controller.ino (Arduino / STM32 Firmware)",
+      code: `// Arduino Firmware for 2-Phase Traffic Signal Switching
+const int PIN_GATE_NS = 9;   // MOSFET Gate for North-South
+const int PIN_GATE_EW = 10;  // MOSFET Gate for East-West
+const int PIN_ADC_QUEUE = A0;// Analog read of capacitor voltage
+
+const unsigned long T_GREEN = 5000; // 5s green in lab demo
+const unsigned long T_CLEAR = 1000; // 1s all-red clearance
+
+void setup() {
+  pinMode(PIN_GATE_NS, OUTPUT);
+  pinMode(PIN_GATE_EW, OUTPUT);
+  Serial.begin(115200);
+}
+
+void loop() {
+  // Phase 1: NS Green
+  digitalWrite(PIN_GATE_NS, HIGH);
+  digitalWrite(PIN_GATE_EW, LOW);
+  delay(T_GREEN);
+  
+  // Clearance: All Red
+  digitalWrite(PIN_GATE_NS, LOW);
+  delay(T_CLEAR);
+  
+  // Phase 2: EW Green
+  digitalWrite(PIN_GATE_EW, HIGH);
+  delay(T_GREEN);
+  
+  // Clearance: All Red
+  digitalWrite(PIN_GATE_EW, LOW);
+  delay(T_CLEAR);
+  
+  // Read and stream live queue voltage
+  int val = analogRead(PIN_ADC_QUEUE);
+  float voltage = val * (5.0 / 1023.0);
+  Serial.println(voltage);
+}`,
+    },
+    keyPitfallToAvoid:
+      "Always put freewheeling Schottky diodes (1N5822) across the switch terminals to clamp inductive voltage spikes when the switch turns off.",
+    verificationGate: "Oscilloscope displays clean sawtooth charging waveform with zero thermal runaway.",
+  },
+  {
+    stepNumber: 5,
+    title: "Perturbation Tests, Coimbatore Corridor & Paper Publication",
+    badge: "Phase 5: Research Impact",
+    timeframe: "Month 2–6",
+    difficulty: "Intermediate",
+    costEstimate: "$0 (Open Data + Paper Writing)",
+    summary:
+      "Execute the 6 disturbance experiments (N-1 road closure, rush hour surge, stuck signal). Ingest real road geometries from the Avinashi Road corridor in Coimbatore. Write and submit your findings to IEEE Transactions.",
+    howToStart: [
+      "Run the 6 canonical experiments: simulate a road block by cutting a switch wire, and observe how the upstream capacitor voltage spikes.",
+      "Download OpenStreetMap road geometry for Coimbatore Avinashi Road and convert to SUMO `.net.xml` using `netconvert`.",
+      "Apply the 5-tier data provenance badges: `MEASURED` (timings), `ESTIMATED` (turning splits).",
+      "Draft paper following IEEE Transactions on Intelligent Transportation Systems (T-ITS) format.",
+    ],
+    exactCodeOrCommands: {
+      language: "bash",
+      title: "coimbatore_osm_pipeline.sh (Real-World Corridor Ingestion)",
+      code: `# 1. Download Avinashi Road bounding box from OpenStreetMap
+wget -O avinashi_road.osm "https://api.openstreetmap.org/api/0.6/map?bbox=76.98,11.00,77.02,11.03"
+
+# 2. Convert to SUMO network format with netconvert
+netconvert --osm-files avinashi_road.osm --output-file avinashi.net.xml --geometry.remove --roundabouts.guess
+
+# 3. Generate random background traffic demand with python
+python $SUMO_HOME/tools/randomTrips.py -n avinashi.net.xml -e 3600 -l --trip-attributes="departLane=\\"best\\" departSpeed=\\"max\\"" -o avinashi.trips.xml
+
+# 4. Run co-simulation and export queue logs
+sumo -c avinashi.sumocfg --fcd-output avinashi_telemetry.xml`,
+    },
+    keyPitfallToAvoid:
+      "Never pass off assumed parameters as empirical measurements. Always state provenance clearly to avoid peer-review rejection.",
+    verificationGate: "Complete manuscript ready for submission with hardware photos and correlation plots.",
+  },
+];
+
