@@ -64,7 +64,7 @@ export const CANDIDATE_MAPPINGS: CandidateMapping[] = [
       "Traffic lights are literally discrete switching states. Multi-phase movements map directly to multi-leg semiconductor bridges with controlled conduction paths.",
     criticalCaveat:
       "Cars are discrete vehicles with driver agency, not continuous electrons. Lost green time during yellow/all-red must be modeled as semiconductor switching losses.",
-    mathematicalLink: "Y(t) = A^T \\cdot \\text{diag}(u_e(t) \\cdot g_e(x)) \\cdot A, \\quad u_e \\in \\{0,1\\}",
+    mathematicalLink: "Y(t) = A^T · diag(u_e(t) · g_e(x)) · A, u_e ∈ {0, 1}",
   },
   {
     id: "signal",
@@ -84,7 +84,7 @@ export const CANDIDATE_MAPPINGS: CandidateMapping[] = [
       "Signal cycle T_cyc and green time T_g map isomorphically to PWM period T_s and duty ratio D = T_g / T_cyc. Finite-Control-Set MPC provides optimal discrete switching without continuous relaxation.",
     criticalCaveat:
       "Minimum green dwell constraints (≥7s) and clearance intervals (≥3-4s) impose hard lower bounds on PWM switching frequency to prevent driver confusion.",
-    mathematicalLink: "D = \\frac{T_g}{T_{\\text{cyc}}} \\Longleftrightarrow D = \\frac{T_{\\text{on}}}{T_s}, \\quad u(k) \\in \\mathcal{U}_{\\text{admissible}}",
+    mathematicalLink: "D = T_g / T_cyc <=> D = T_on / T_s, u(k) ∈ U_admissible",
   },
   {
     id: "queue",
@@ -104,7 +104,7 @@ export const CANDIDATE_MAPPINGS: CandidateMapping[] = [
       "Queue accumulation obeys flow conservation: dq/dt = q_in - q_out. Mapping charge Q = k·q yields standard capacitor dynamics C·(dV/dt) = I_in - I_out where voltage V represents queue length.",
     criticalCaveat:
       "Capacitor discharge is electrically reversible (energy recovery), whereas traffic queue dissipation is irreversible (lost travel time is permanently dissipated).",
-    mathematicalLink: "C \\frac{dV_i}{dt} = \\sum I_{\\text{in}} - \\sum I_{\\text{out}} \\Longleftrightarrow k \\frac{dq_i}{dt} = a_i(t) - d_i(t)",
+    mathematicalLink: "C · (dV_i / dt) = ∑ I_in − ∑ I_out <=> k · (dq_i / dt) = a_i(t) − d_i(t)",
   },
   {
     id: "source-sink",
@@ -124,7 +124,7 @@ export const CANDIDATE_MAPPINGS: CandidateMapping[] = [
       "Origin injection zones act as constant current sources I_src = k·λ. Network exits act as ground references or matched resistive loads consuming flow.",
     criticalCaveat:
       "Driver route choice is driven by individual trip destinations and navigation apps, not purely by electrostatic potential gradients.",
-    mathematicalLink: "I_{\\text{src}}(t) = k \\cdot \\lambda(t) \\quad [\\text{Amperes}], \\quad I_{\\text{sink}} = \\frac{V_{\\text{exit}}}{R_{\\text{term}}}",
+    mathematicalLink: "I_src(t) = k · λ(t) [Amperes], I_sink = V_exit / R_term",
   },
   {
     id: "road-segment",
@@ -144,7 +144,7 @@ export const CANDIDATE_MAPPINGS: CandidateMapping[] = [
       "Travel time increases with corridor flow, mirroring Ohm's law V = R·I where resistance R = α·T_e. Series inductance L captures vehicle vehicular flow inertia.",
     criticalCaveat:
       "Naïve Ohm's law fails in hyper-congested regimes where flow drops as density rises (apparent negative resistance). Must be bounded by saturation limit I_max = k·C_road.",
-    mathematicalLink: "R_e = \\alpha T_e, \\quad I_e \\le I_{\\max} = k \\cdot C_e, \\quad v_L = L \\frac{dI}{dt}",
+    mathematicalLink: "R_e = α · T_e, I_e ≤ I_max = k · C_e, v_L = L · (dI/dt)",
   },
   {
     id: "whole-network",
@@ -164,7 +164,7 @@ export const CANDIDATE_MAPPINGS: CandidateMapping[] = [
       "High-level graph abstraction G=(V,E) where macroscopic dynamics can be analyzed using power-grid topological metrics and N-1 contingency screening.",
     criticalCaveat:
       "Potential field curl is non-zero around urban blocks (∮ ∇Φ·dr ≠ 0). Kirchhoff's Voltage Law does NOT hold network-wide. Must not be claimed as physical identity.",
-    mathematicalLink: "\\sum_{\\text{loop}} \\Delta V \\neq 0 \\quad (\\text{KVL Fails; Flow Continuity Preserved})",
+    mathematicalLink: "∑_loop ΔV ≠ 0 (KVL Fails; Flow Continuity Preserved)",
   },
 ];
 
@@ -1176,10 +1176,10 @@ np.savetxt("traffic_ground_truth.csv", queue_NS, delimiter=",")`,
     summary:
       "Translate the 5-node traffic model into an exact electrical circuit. Every queue becomes a capacitor C=k Farads, every road becomes a resistor R=α·T, and every traffic signal becomes a MOSFET switch driven by PWM.",
     howToStart: [
-      "Choose a scaling factor $k = 10\\text{ Coulombs/veh}$ (so $1\\text{ veh/s} = 10\\text{ mA}$ and $C = 10\\text{ mF}$).",
-      "Model capacitor voltage: $C \\cdot \\frac{dV}{dt} = I_{\\text{in}} - I_{\\text{out}}$.",
-      "Model switch: $I_{\\text{out}} = \\text{Gate}(t) \\cdot I_{\\max}$.",
-      "Run the Python circuit solver below to compute the electrical node voltage $V(t)$.",
+      "Choose a scaling factor k = 10 Coulombs/veh (so 1 veh/s = 10 mA and C = 10 mF).",
+      "Model capacitor voltage: C · (dV/dt) = I_in − I_out.",
+      "Model switch: I_out = Gate(t) · I_max.",
+      "Run the Python circuit solver below to compute the electrical node voltage V(t).",
     ],
     exactCodeOrCommands: {
       language: "python",
@@ -1212,21 +1212,21 @@ print("Circuit Simulation Complete! Node Voltage Max:", np.max(V_node))`,
     },
     keyPitfallToAvoid:
       "Do NOT enforce Kirchhoff's Voltage Law (KVL) around loops. Only enforce Kirchhoff's Current Law (KCL) at each capacitor node.",
-    verificationGate: "Node voltage $V(t)$ in Volts numerically aligns with vehicle queue $q(t)$.",
+    verificationGate: "Node voltage V(t) in Volts numerically aligns with vehicle queue q(t).",
   },
   {
     stepNumber: 3,
-    title: "Sim-to-Sim Cross-Domain Validation ($r \\ge 0.90$)",
+    title: "Sim-to-Sim Cross-Domain Validation (r ≥ 0.90)",
     badge: "Phase 3: Scientific Validation",
     timeframe: "Day 8–14",
     difficulty: "Intermediate",
     costEstimate: "$0",
     summary:
-      "Overlay the traffic queue trajectory $q(t)$ and electrical voltage trajectory $V(t)$. Calculate Pearson correlation $r$ and Mean Absolute Error (MAE) to prove whether the analogy is scientifically valid.",
+      "Overlay the traffic queue trajectory q(t) and electrical voltage trajectory V(t). Calculate Pearson correlation r and Mean Absolute Error (MAE) to prove whether the analogy is scientifically valid.",
     howToStart: [
       "Load both CSV files: `traffic_ground_truth.csv` and `circuit_analog_voltage.csv`.",
-      "Compute Pearson correlation coefficient $r = \\frac{\\text{cov}(q, V)}{\\sigma_q \\sigma_V}$.",
-      "Check error threshold: If $r \\ge 0.90$ and $\\text{MAE} \\le 15\\%$, your analogy is officially validated!",
+      "Compute Pearson correlation coefficient r = cov(q, V) / (σ_q · σ_V).",
+      "Check error threshold: If r ≥ 0.90 and MAE ≤ 15%, your analogy is officially validated!",
     ],
     exactCodeOrCommands: {
       language: "python",
@@ -1252,7 +1252,7 @@ else:
     },
     keyPitfallToAvoid:
       "If correlation is low, check whether your green/red timing offset between traffic and gate PWM is out of phase.",
-    verificationGate: "Pearson $r \\ge 0.90$ with zero unmodeled phase lags.",
+    verificationGate: "Pearson r ≥ 0.90 with zero unmodeled phase lags.",
   },
   {
     stepNumber: 4,
@@ -1339,7 +1339,7 @@ wget -O avinashi_road.osm "https://api.openstreetmap.org/api/0.6/map?bbox=76.98,
 netconvert --osm-files avinashi_road.osm --output-file avinashi.net.xml --geometry.remove --roundabouts.guess
 
 # 3. Generate random background traffic demand with python
-python $SUMO_HOME/tools/randomTrips.py -n avinashi.net.xml -e 3600 -l --trip-attributes="departLane=\\"best\\" departSpeed=\\"max\\"" -o avinashi.trips.xml
+python $SUMO_HOME/tools/randomTrips.py -n avinashi.net.xml -e 3600 -l --trip-attributes="departLane='best' departSpeed='max'" -o avinashi.trips.xml
 
 # 4. Run co-simulation and export queue logs
 sumo -c avinashi.sumocfg --fcd-output avinashi_telemetry.xml`,

@@ -859,7 +859,7 @@ function DimensionalAnalysisSection() {
               <div>C · (dV/dt) = I_in - I_out  &lt;===&gt;  k · (dq/dt) = k · (a(t) - d(t))</div>
             </div>
             <p className="text-[12.5px] text-[#4a4640] leading-relaxed">
-              Setting capacitor sizing to $C = k$ [Farads] guarantees that <strong>node voltage numerically equals queue length</strong> ($V_i(t) = q_i(t)$ Volts). In steady-state ($\dot{q} = 0$), $\sum I_{\text{in}} = \sum I_{\text{out}}$, exactly reproducing <strong>Kirchhoff's Current Law (KCL)</strong>.
+              Setting capacitor sizing to C = k [Farads] guarantees that <strong>node voltage numerically equals queue length</strong> (V_i(t) = q_i(t) Volts). In steady-state (dq/dt = 0), ∑ I_in = ∑ I_out, exactly reproducing <strong>Kirchhoff's Current Law (KCL)</strong>.
             </p>
           </div>
 
@@ -985,7 +985,7 @@ function MathematicalModelsSection() {
             <span className="data text-[9px] bg-[#d1ece0] px-2 py-0.5 rounded text-[#1a5c36] font-semibold">Power Electronics</span>
           </div>
           <p className="text-[12px] text-[#332f28] leading-relaxed">
-            Formulates signalized corridors as switched hybrid dynamical systems where semiconductor switching states $u(k) \in \{0,1\}^M$ dynamically reconfigure $Y(t)$.
+            Formulates signalized corridors as switched hybrid dynamical systems where semiconductor switching states u(k) ∈ {"{0, 1}"}^M dynamically reconfigure Y(t).
           </p>
           <div className="space-y-3 font-mono text-[11px]">
             <div>
