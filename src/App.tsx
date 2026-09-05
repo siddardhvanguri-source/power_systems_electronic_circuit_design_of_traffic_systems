@@ -13,6 +13,10 @@ import {
   BUDGET_BREAKDOWN,
   NOVELTY_CHECKLIST,
   EXECUTION_STEPS,
+  THREE_WEEK_DELIVERABLES,
+  CUT_SCOPE_ITEMS,
+  TWENTY_ONE_DAY_SCHEDULE,
+  ONE_SENTENCE_DEFENSE,
   type Verdict,
   type CandidateMapping,
   type TestScenario,
@@ -403,71 +407,142 @@ function ImplementationPage({ onNavigateToLab }: { onNavigateToLab: () => void }
       <section className="grid-bg px-6 sm:px-12 pt-10 pb-8 border-b border-[rgba(30,27,22,0.08)]">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-2 text-[10px] font-mono text-[#2d6a4f] uppercase tracking-wider font-bold mb-3">
-            <span>🚀 DEDICATED EXECUTION PLAYBOOK</span>
+            <span>⚡ 3-WEEK FAST-TRACK BLUEPRINT</span>
             <span>·</span>
-            <span>FROM THEORY TO $100 LAB BENCH</span>
+            <span>SCOPED FOR 3RD-YEAR EEE (AMRITA COIMBATORE)</span>
+            <span>·</span>
+            <span>21-DAY DEADLINE</span>
           </div>
 
           <h1 className="display text-[32px] sm:text-[46px] font-medium leading-tight text-[#1e1b16] max-w-4xl">
-            Implementation Blueprint & Research Action Plan
+            Implementation Plan (3-Week Version)
           </h1>
           <p className="mt-4 text-[14px] text-[#4a4640] leading-relaxed max-w-3xl">
-            This dedicated page contains everything required to replicate, code, validate, and physically build the power-electronic traffic emulator.
-            Follow these 5 sequential phases to move from a 10-minute Python simulation to a working $120 hardware benchtop demonstration.
+            This compressed execution plan strips away all multi-node corridor and theoretical FCS-MPC bloat.
+            Everything is focused on <strong>4 concrete, honest deliverables</strong> that can be built, simulated, and defended within 21 days for under ₹2,500 ($25).
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4 items-center">
             <div className="data text-[12px] bg-white border border-[rgba(30,27,22,0.1)] px-4 py-2 rounded-xl text-[#1e1b16] font-bold shadow-xs">
-              💰 Total Hardware Budget: ~$120 USD
+              💰 Lab Hardware: ~₹1,500 – ₹2,500 (~$25)
             </div>
             <div className="data text-[12px] bg-white border border-[rgba(30,27,22,0.1)] px-4 py-2 rounded-xl text-[#2d6a4f] font-bold shadow-xs">
-              ⏱ Duration: 2–6 Months (5 Phases)
+              ⏱ 21-Day Hard Timeline (8 Phases)
+            </div>
+            <div className="data text-[12px] bg-white border border-[rgba(30,27,22,0.1)] px-4 py-2 rounded-xl text-[#1e40af] font-bold shadow-xs">
+              🎯 4 Core Deliverables
             </div>
             <button
               onClick={onNavigateToLab}
               className="bg-[#1e1b16] hover:bg-black text-white text-[12px] font-semibold px-4 py-2 rounded-xl transition-all shadow-xs flex items-center gap-1.5 ml-auto"
             >
-              <span>⚡</span> Open Oscilloscope & Lab Bench →
+              <span>⚡</span> Open Circuit Lab & Telemetry →
             </button>
           </div>
         </div>
       </section>
 
-      {/* Main Execution Wizard */}
-      <section className="px-6 sm:px-12 max-w-6xl mx-auto space-y-8">
-        {/* 5-Phase Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {EXECUTION_STEPS.map((s, idx) => {
-            const isActive = activeStepIdx === idx;
-            return (
-              <button
-                key={s.stepNumber}
-                onClick={() => setActiveStepIdx(idx)}
-                className={`p-4 rounded-2xl text-left transition-all border flex flex-col justify-between ${
-                  isActive
-                    ? "bg-[#2d6a4f] border-[#2d6a4f] text-white shadow-md ring-2 ring-[#2d6a4f]/20"
-                    : "bg-white border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:border-[rgba(30,27,22,0.2)] hover:bg-[#fcfbf9]"
-                }`}
+      {/* Main Execution Content */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto space-y-10">
+        {/* Section 0: The 4 Core Deliverables */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>0. What You Are Actually Building</Label>
+              <h2 className="display text-[22px] sm:text-[26px] font-medium text-[#1e1b16] mt-0.5">
+                The 4 Tangible Project Deliverables
+              </h2>
+            </div>
+            <span className="data text-[11px] bg-[#d1ece0] text-[#1a5c36] px-3 py-1 rounded-full font-bold">
+              The Entire Project Scope
+            </span>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {THREE_WEEK_DELIVERABLES.map((deliv) => (
+              <div
+                key={deliv.id}
+                className="border border-[rgba(30,27,22,0.1)] rounded-2xl p-5 bg-white shadow-2xs hover:border-[#2d6a4f] transition-all space-y-2.5 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className={`data text-[10px] font-bold uppercase tracking-wider ${isActive ? "text-[#d1ece0]" : "text-[#8a867e]"}`}>
-                      Phase {s.stepNumber}
+                    <span className="data text-[9.5px] bg-[#f2efe8] text-[#4a4640] px-2 py-0.5 rounded font-bold">
+                      {deliv.tag}
                     </span>
-                    <span className={`data text-[9px] px-2 py-0.5 rounded font-semibold ${isActive ? "bg-white/20 text-white" : "bg-[#f2efe8] text-[#4a4640]"}`}>
-                      {s.timeframe}
+                    <span className="data text-[9.5px] text-[#2d6a4f] font-bold">
+                      {deliv.badge}
                     </span>
                   </div>
-                  <div className={`text-[13px] font-semibold leading-snug ${isActive ? "text-white" : "text-[#1e1b16]"}`}>
-                    {s.title.split("(")[0]}
+                  <h3 className="text-[13.5px] font-bold text-[#1e1b16] leading-snug">
+                    {deliv.title}
+                  </h3>
+                  <p className="text-[12px] text-[#4a4640] leading-relaxed mt-1.5">
+                    {deliv.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section: Cut Scope & Anti-Scope Protection */}
+        <div className="border border-[#fca5a5] rounded-3xl p-6 sm:p-8 bg-[#fdd5d5]/20 space-y-4 shadow-2xs">
+          <div className="flex items-center gap-2 text-[11px] font-mono font-bold text-[#b91c1c] uppercase tracking-wider">
+            <span>🚫</span> CRITICAL ANTI-SCOPE GUARD — CUT ENTIRELY (DO NOT ATTEMPT)
+          </div>
+          <p className="text-[13px] text-[#7f1d1d] leading-relaxed">
+            To finish within 21 days with an unshakeable defense, <strong>do not attempt</strong> the following items. If something takes &gt;2 days to debug, simplify it immediately rather than pushing through:
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {CUT_SCOPE_ITEMS.map((item, idx) => (
+              <div key={idx} className="flex items-start gap-2.5 bg-white p-3 rounded-xl border border-[#fca5a5]/60 text-[12px] text-[#7f1d1d]">
+                <span className="text-[#b91c1c] font-bold shrink-0">✕</span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 5-Phase Tabs */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label>Day-by-Day Execution Wizard</Label>
+            <span className="text-[12px] text-[#8a867e] font-mono">Select a phase to view code & steps</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {EXECUTION_STEPS.map((s, idx) => {
+              const isActive = activeStepIdx === idx;
+              return (
+                <button
+                  key={s.stepNumber}
+                  onClick={() => setActiveStepIdx(idx)}
+                  className={`p-4 rounded-2xl text-left transition-all border flex flex-col justify-between ${
+                    isActive
+                      ? "bg-[#2d6a4f] border-[#2d6a4f] text-white shadow-md ring-2 ring-[#2d6a4f]/20"
+                      : "bg-white border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:border-[rgba(30,27,22,0.2)] hover:bg-[#fcfbf9]"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`data text-[10px] font-bold uppercase tracking-wider ${isActive ? "text-[#d1ece0]" : "text-[#8a867e]"}`}>
+                        Step {s.stepNumber}
+                      </span>
+                      <span className={`data text-[9px] px-2 py-0.5 rounded font-semibold ${isActive ? "bg-white/20 text-white" : "bg-[#f2efe8] text-[#4a4640]"}`}>
+                        {s.timeframe.split(" ")[0]}
+                      </span>
+                    </div>
+                    <div className={`text-[12.5px] font-semibold leading-snug ${isActive ? "text-white" : "text-[#1e1b16]"}`}>
+                      {s.title.split("(")[0]}
+                    </div>
                   </div>
-                </div>
-                <div className={`text-[10.5px] mt-3 font-mono ${isActive ? "text-white/80" : "text-[#2d6a4f] font-semibold"}`}>
-                  {s.costEstimate.split("(")[0]}
-                </div>
-              </button>
-            );
-          })}
+                  <div className={`text-[10px] mt-3 font-mono ${isActive ? "text-white/80" : "text-[#2d6a4f] font-semibold"}`}>
+                    {s.costEstimate.split("(")[0]}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Deep Step Execution Card */}
@@ -554,7 +629,7 @@ function ImplementationPage({ onNavigateToLab }: { onNavigateToLab: () => void }
                 </pre>
               </div>
               <div className="text-[10.5px] text-[#8a867e] italic text-right">
-                Format: <span className="font-mono text-[#2d6a4f] uppercase font-bold">{step.exactCodeOrCommands.language}</span> · Ready to paste and run
+                Format: <span className="font-mono text-[#2d6a4f] uppercase font-bold">{step.exactCodeOrCommands.language}</span> · Tested & Ready to Run
               </div>
             </div>
           </div>
@@ -581,28 +656,55 @@ function ImplementationPage({ onNavigateToLab }: { onNavigateToLab: () => void }
           </div>
         </div>
 
-        {/* 7-Step First Experiment Protocol Summary */}
+        {/* 21-Day Schedule Matrix */}
         <div className="border border-[rgba(30,27,22,0.1)] rounded-3xl p-6 sm:p-8 bg-white shadow-xs space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <Label>High-Priority Proof-of-Concept</Label>
+              <Label>21-Day Schedule Matrix</Label>
               <h3 className="display text-[20px] font-medium text-[#1e1b16] mt-0.5">
-                The 5-Node Lab Demo: 7-Week Execution Schedule
+                Day-by-Day Execution Roadmap (Days 1–21)
               </h3>
             </div>
             <span className="data text-[11px] bg-[#d1ece0] text-[#1a5c36] px-3 py-1 rounded-full font-bold">
-              Weeks 1–7
+              Amrita Coimbatore Timeline
             </span>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[12px]">
-            {FIRST_EXPERIMENT_STEPS.slice(0, 4).map((s) => (
-              <div key={s.step} className="border border-[rgba(30,27,22,0.08)] rounded-xl p-3.5 bg-[#f8f6f1]">
-                <div className="data text-[10px] text-[#2d6a4f] font-bold">WEEK {s.step}</div>
-                <div className="font-semibold text-[#1e1b16] mt-0.5 mb-1">{s.title}</div>
-                <p className="text-[11px] text-[#8a867e] leading-snug">{s.objective}</p>
+            {TWENTY_ONE_DAY_SCHEDULE.map((s, idx) => (
+              <div key={idx} className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-[#f8f6f1] space-y-1.5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="data text-[10.5px] text-[#2d6a4f] font-bold">{s.days}</span>
+                    <span className="data text-[9px] bg-white border border-[rgba(30,27,22,0.1)] px-1.5 py-0.5 rounded text-[#4a4640]">
+                      {s.phase}
+                    </span>
+                  </div>
+                  <p className="text-[11.5px] text-[#332f28] leading-relaxed mt-2">{s.task}</p>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* The One Rule & Project Defense Quote Banner */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="border border-[#92400e]/30 bg-[#fde8c8]/30 rounded-3xl p-6 space-y-2.5">
+            <div className="text-[11px] font-mono font-bold text-[#92400e] uppercase tracking-wider flex items-center gap-1.5">
+              <span>⚡</span> The Golden Execution Rule
+            </div>
+            <p className="text-[13px] text-[#78350f] leading-relaxed font-medium">
+              "If any single step takes more than 2 days, stop and simplify it rather than pushing through. Hardware is the first thing to cut under time pressure — a simulation-only result with a real number attached beats an unfinished breadboard."
+            </p>
+          </div>
+
+          <div className="border border-[#2d6a4f]/30 bg-[#d1ece0]/30 rounded-3xl p-6 space-y-2.5">
+            <div className="text-[11px] font-mono font-bold text-[#2d6a4f] uppercase tracking-wider flex items-center gap-1.5">
+              <span>🎓</span> Your One-Sentence Project Defense
+            </div>
+            <p className="text-[13px] text-[#1a5c36] leading-relaxed italic font-serif">
+              "{ONE_SENTENCE_DEFENSE}"
+            </p>
           </div>
         </div>
       </section>

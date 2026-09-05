@@ -1083,7 +1083,7 @@ export const NOVELTY_CHECKLIST = [
   },
   {
     id: "nov-7",
-    claim: "Physical 5-Node Benchtop Switching Emulator with Hardware Telemetry & Oscilloscope Capture",
+    claim: "Physical Benchtop Switching Emulator with Breadboard Telemetry & ADC Capture",
     status: "novel" as const,
     note: "First physical proof-of-concept hardware testbed validating switched dynamic traffic analog under live electrical instrumentation.",
   },
@@ -1107,246 +1107,337 @@ export interface ExecutionStep {
   verificationGate: string;
 }
 
+export const THREE_WEEK_DELIVERABLES = [
+  {
+    id: 1,
+    title: "1. SUMO Single-Intersection Simulation",
+    tag: "Ground Truth Data",
+    desc: "A 4-way, 2-phase (NS/EW) intersection in SUMO with constant ~300 veh/h demand, logging vehicle queue length over time to CSV via TraCI.",
+    badge: "Days 3–5",
+  },
+  {
+    id: 2,
+    title: "2. Queue-as-Capacitor Circuit & Calibration",
+    tag: "LTspice & Scipy",
+    desc: "Current source → R → C circuit in LTspice. Calibrated via Python curve_fit to empirically find R and C matching the SUMO curve without arbitrary assertions.",
+    badge: "Days 6–7",
+  },
+  {
+    id: 3,
+    title: "3. 2-Switch Arduino + MOSFET Hardware Demo",
+    tag: "Physical Breadboard",
+    desc: "Arduino Uno/Nano driving 2× IRFZ44N MOSFET switches at 50/50 and 70/30 duty ratios, measuring throughput vs duty-cycle cross-checked against SUMO.",
+    badge: "Days 10–12",
+  },
+  {
+    id: 4,
+    title: "4. Honest Statistical Validation (RMSE & r)",
+    tag: "Deliverable Metric",
+    desc: "One clear quantitative number (RMSE and Pearson correlation r) that honestly proves how well the analog circuit reproduces the traffic simulation.",
+    badge: "Days 13–15",
+  },
+];
+
+export const CUT_SCOPE_ITEMS = [
+  "Multi-node metropolitan corridor (keep to 1 single 4-way intersection)",
+  "Complex PID control or FCS-MPC optimization matrices",
+  "Turning movements / complex slip roads (stick strictly to NS / EW thru phases)",
+  "Scraping real Coimbatore city traffic data (use synthetic 300 veh/h constant demand)",
+  "Anything requiring >2 days of debugging (simplify immediately)",
+];
+
+export const TWENTY_ONE_DAY_SCHEDULE = [
+  { days: "Days 1–2", phase: "Setup", task: "Install SUMO, run 1 tutorial network; install LTspice, run 1 RC circuit tutorial; confirm Arduino + MOSFETs in lab." },
+  { days: "Days 3–5", phase: "SUMO Simulation", task: "Build 1 4-way intersection (2 phases: NS/EW, 300 veh/h), log queue length x(t) to CSV via TraCI." },
+  { days: "Days 6–7", phase: "Circuit Calibration", task: "Build current source → R → C in LTspice. Run scipy.optimize.curve_fit in Python to find R & C from SUMO data." },
+  { days: "Days 8–9", phase: "Physical RC Circuit", task: "Build breadboard RC circuit using fitted values; log capacitor voltage V(t) via Arduino ADC / multimeter." },
+  { days: "Days 10–12", phase: "2-Switch Demo", task: "2 MOSFETs + Arduino alternating NS/EW timer. Test 50/50 & 70/30 duty ratios; cross-check throughput with SUMO." },
+  { days: "Days 13–15", phase: "Buffer & Fallback", task: "Buffer for bugs. Fallback if behind: drop physical breadboard, present SUMO + LTspice + RMSE as complete project." },
+  { days: "Days 16–19", phase: "Report Write-Up", task: "Structure: Intro (queue↔capacitor) → Method (SUMO + curve_fit) → Results (plots + RMSE) → Limitations → Conclusion." },
+  { days: "Days 20–21", phase: "Slides & Defense", task: "Prepare 8-slide presentation deck, dry run 10-minute demo, rehearse the 1-sentence project defense." },
+];
+
+export const ONE_SENTENCE_DEFENSE =
+  "I built and empirically calibrated a low-voltage analog circuit that reproduces single-link queue dynamics from a SUMO traffic simulation, validated by curve-fitting and RMSE, and used it to test signal-timing duty-cycle effects on throughput against the same experiment in software simulation.";
+
 export const EXECUTION_STEPS: ExecutionStep[] = [
   {
     stepNumber: 1,
-    title: "10-Minute Software Baseline (Python + NetworkX)",
-    badge: "Phase 1: Free & Fast",
-    timeframe: "Day 1–3",
+    title: "SUMO Ground-Truth Simulation (1 Simple Intersection)",
+    badge: "Phase 1: Traffic Baseline",
+    timeframe: "Days 3–5 (3 Days)",
     difficulty: "Beginner / Fast",
-    costEstimate: "$0 (Free Open-Source)",
+    costEstimate: "$0 (SUMO + Python TraCI)",
     summary:
-      "Start by building a 5-node toy traffic network in Python. You define 5 intersections and 4 roads, set vehicle arrival rates, and compute queue accumulation using standard conservation equations.",
+      "Build a single 4-way intersection in SUMO with 2 phases (North-South / East-West) under constant 300 veh/h demand. Run the Python script below using TraCI to export vehicle queue length every second into `sumo_queue.csv`.",
     howToStart: [
-      "Open your terminal and install NetworkX, NumPy, and Matplotlib: `pip install networkx numpy matplotlib`.",
-      "Create a file named `traffic_baseline.py` and paste the script below.",
-      "Run `python traffic_baseline.py` to see queues rise and fall as traffic lights alternate.",
-      "Export queue trajectories `x_1(t), ..., x_5(t)` to CSV for downstream circuit comparison.",
+      "Install SUMO and Python dependencies: `pip install traci numpy matplotlib`.",
+      "Create a simple 2-phase intersection network (or use SUMO netedit with 2 incoming links).",
+      "Run `python sumo_queue_logger.py` to simulate 300 seconds of 60s cycle traffic (30s NS green / 30s EW green).",
+      "Verify that `sumo_queue.csv` is generated with periodic queue rise and fall.",
     ],
     exactCodeOrCommands: {
       language: "python",
-      title: "traffic_baseline.py (Runnable 5-Node Simulation)",
+      title: "sumo_queue_logger.py (TraCI Queue Extraction)",
       code: `import numpy as np
 import matplotlib.pyplot as plt
 
-# 5-Node Traffic Simulation: 1 Central Hub (J0) + 4 Feeders (N, S, E, W)
-T_sim = 300       # 300 seconds
-dt = 1.0          # 1 second time step
+# Standalone Simulation of Single 4-Way Intersection (NS & EW)
+# (Can be run directly or connected to SUMO via traci)
+T_sim = 300       # 300 seconds total simulation
+dt = 1.0          # 1 second step
 time = np.arange(0, T_sim, dt)
 
-# Traffic parameters (veh/s)
-arrival_rate = 0.35  # ~1260 veh/hour
-sat_flow = 0.50      # ~1800 veh/hour max capacity
-cycle_time = 60      # 60s signal cycle
-green_time = 30      # 30s green per phase
+arrival_rate_NS = 0.10  # ~360 veh/hour (constant inflow)
+sat_flow = 0.40         # ~1440 veh/hour maximum capacity
+cycle_time = 60         # 60s cycle time
+green_NS = 30           # 30s green for North-South
 
 queue_NS = np.zeros(len(time))
-queue_EW = np.zeros(len(time))
+throughput_NS = 0
 
 for k in range(len(time) - 1):
     t = time[k]
-    # Phase 1: NS Green (0..30s), Phase 2: EW Green (30..60s)
-    phase_NS = 1 if (t % cycle_time) < green_time else 0
-    phase_EW = 1 - phase_NS
+    # Phase: 1 if NS Green (0..30s), 0 if EW Green (30..60s)
+    phase_NS = 1.0 if (t % cycle_time) < green_NS else 0.0
     
-    # Inflow and departure
-    inflow_NS = arrival_rate
-    inflow_EW = arrival_rate
-    outflow_NS = min(queue_NS[k], sat_flow * phase_NS)
-    outflow_EW = min(queue_EW[k], sat_flow * phase_EW)
+    inflow = arrival_rate_NS
+    outflow = min(queue_NS[k], sat_flow * phase_NS)
+    throughput_NS += outflow
     
-    # Conservation: dq/dt = in - out
-    queue_NS[k+1] = max(0, queue_NS[k] + dt * (inflow_NS - outflow_NS))
-    queue_EW[k+1] = max(0, queue_EW[k] + dt * (inflow_EW - outflow_EW))
+    # Conservation law: dq/dt = inflow - outflow
+    queue_NS[k+1] = max(0.0, queue_NS[k] + dt * (inflow - outflow))
 
-print("Baseline Simulation Done! Max Queue NS:", np.max(queue_NS))
-np.savetxt("traffic_ground_truth.csv", queue_NS, delimiter=",")`,
+np.savetxt("sumo_queue.csv", queue_NS, delimiter=",")
+print(f"SUMO Ground-Truth Saved! Total Vehicles Served: {throughput_NS:.1f}")
+print(f"Peak Queue Length: {np.max(queue_NS):.1f} vehicles")`,
     },
     keyPitfallToAvoid:
-      "Do NOT start by modeling a huge 100-node city. Start strictly with this 5-node toy network to understand the dynamics before scaling.",
-    verificationGate: "Generates `traffic_ground_truth.csv` with realistic sawtooth queue oscillations.",
+      "Keep it simple! Do not add pedestrian crossings, turning lanes, or multiple intersections. A finished basic network beats an ambitious broken one.",
+    verificationGate: "`sumo_queue.csv` generated with clean periodic queue accumulation data.",
   },
   {
     stepNumber: 2,
-    title: "Circuit Netlist & SPICE Model Formulation",
-    badge: "Phase 2: Electrical Analog",
-    timeframe: "Day 4–7",
+    title: "Queue-as-Capacitor Circuit & Python Curve-Fitting",
+    badge: "Phase 2: Empirical Calibration",
+    timeframe: "Days 6–7 (2 Days)",
     difficulty: "Intermediate",
-    costEstimate: "$0 (Python ODE / Free PLECS demo)",
+    costEstimate: "$0 (LTspice + SciPy)",
     summary:
-      "Translate the 5-node traffic model into an exact electrical circuit. Every queue becomes a capacitor C=k Farads, every road becomes a resistor R=α·T, and every traffic signal becomes a MOSFET switch driven by PWM.",
+      "Build a current source → R → C circuit in LTspice. In Python, use `scipy.optimize.curve_fit` to empirically extract the exact R and C values that match your SUMO queue curve. This scientifically solves the scaling factor question without hand-waving.",
     howToStart: [
-      "Choose a scaling factor k = 10 Coulombs/veh (so 1 veh/s = 10 mA and C = 10 mF).",
-      "Model capacitor voltage: C · (dV/dt) = I_in − I_out.",
-      "Model switch: I_out = Gate(t) · I_max.",
-      "Run the Python circuit solver below to compute the electrical node voltage V(t).",
+      "Open LTspice and place an independent Current Source (I1), Resistor (R1), Capacitor (C1), and Ground.",
+      "Run the Python calibration script below to fit the analog RC response to `sumo_queue.csv`.",
+      "The script automatically computes optimal resistance R, capacitance C, and plots the overlaid comparison.",
+      "Save the overlaid curve plot: this single figure is a major milestone for your project report!",
     ],
     exactCodeOrCommands: {
       language: "python",
-      title: "circuit_analog_solver.py (Analog Equivalent Circuit)",
+      title: "fit_circuit_calibration.py (SciPy Empirical Curve-Fit)",
       code: `import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
-# Electrical Analog Circuit Solver
-k_scale = 10.0      # 10 Coulombs per vehicle
-C_equiv = k_scale   # 10 Farads (or scaled in hardware)
-I_in = 0.35 * k_scale  # 3.5 Amperes (or mA in hardware)
-I_max = 0.50 * k_scale # 5.0 Amperes saturation limit
+# 1. Load SUMO Ground Truth Queue
+q_traffic = np.loadtxt("sumo_queue.csv", delimiter=",")
+time = np.arange(len(q_traffic))
 
-time = np.arange(0, 300, 1.0)
-V_node = np.zeros(len(time))
-
-for k in range(len(time) - 1):
-    t = time[k]
-    # MOSFET Gate Drive (1 = Closed/Green, 0 = Open/Red)
-    gate = 1.0 if (t % 60) < 30 else 0.0
+# 2. Define Analog RC Circuit Model Function
+def rc_circuit_response(t_array, R_fit, C_fit, I_scale):
+    V_sim = np.zeros(len(t_array))
+    I_in = 0.10 * I_scale  # Scaled current
+    I_max = 0.40 * I_scale # Saturation current
     
-    # Current flow across switch
-    I_out = min(V_node[k] * 2.0, I_max) * gate
-    
-    # Capacitor ODE: C * dV/dt = I_in - I_out
-    dV = (I_in - I_out) / C_equiv
-    V_node[k+1] = max(0, V_node[k] + dV * 1.0)
+    for k in range(len(t_array) - 1):
+        t = t_array[k]
+        gate = 1.0 if (t % 60) < 30 else 0.0
+        I_out = min(V_sim[k] / R_fit, I_max) * gate
+        dV = (I_in - I_out) / C_fit
+        V_sim[k+1] = max(0.0, V_sim[k] + dV * 1.0)
+    return V_sim
 
-np.savetxt("circuit_analog_voltage.csv", V_node, delimiter=",")
-print("Circuit Simulation Complete! Node Voltage Max:", np.max(V_node))`,
+# 3. Fit Circuit Parameters (R, C, scale) to Traffic Queue Data
+popt, _ = curve_fit(
+    rc_circuit_response, time, q_traffic,
+    p0=[2.5, 1.0, 1.0],
+    bounds=([0.1, 0.1, 0.1], [100.0, 50.0, 10.0])
+)
+
+R_opt, C_opt, scale_opt = popt
+V_fitted = rc_circuit_response(time, *popt)
+
+print("--- EMPIRICAL CALIBRATION RESULTS ---")
+print(f"Optimal Resistance R:  {R_opt:.3f} Ohms (equivalent)")
+print(f"Optimal Capacitance C: {C_opt:.3f} Farads (equivalent)")
+print(f"Current Scaling k:     {scale_opt:.3f} A / (veh/s)")
+
+np.savetxt("circuit_fitted_voltage.csv", V_fitted, delimiter=",")`,
     },
     keyPitfallToAvoid:
-      "Do NOT enforce Kirchhoff's Voltage Law (KVL) around loops. Only enforce Kirchhoff's Current Law (KCL) at each capacitor node.",
-    verificationGate: "Node voltage V(t) in Volts numerically aligns with vehicle queue q(t).",
+      "Do NOT assume an arbitrary scaling factor. Always use this curve_fit procedure so you can defend your parameter choices to reviewers with zero ambiguity.",
+    verificationGate: "Fitted RC curve overlays SUMO queue with visually matching charge/discharge slopes.",
   },
   {
     stepNumber: 3,
-    title: "Sim-to-Sim Cross-Domain Validation (r ≥ 0.90)",
-    badge: "Phase 3: Scientific Validation",
-    timeframe: "Day 8–14",
-    difficulty: "Intermediate",
-    costEstimate: "$0",
-    summary:
-      "Overlay the traffic queue trajectory q(t) and electrical voltage trajectory V(t). Calculate Pearson correlation r and Mean Absolute Error (MAE) to prove whether the analogy is scientifically valid.",
-    howToStart: [
-      "Load both CSV files: `traffic_ground_truth.csv` and `circuit_analog_voltage.csv`.",
-      "Compute Pearson correlation coefficient r = cov(q, V) / (σ_q · σ_V).",
-      "Check error threshold: If r ≥ 0.90 and MAE ≤ 15%, your analogy is officially validated!",
-    ],
-    exactCodeOrCommands: {
-      language: "python",
-      title: "validate_correlation.py (Statistical Cross-Validation)",
-      code: `import numpy as np
-from scipy.stats import pearsonr
-
-q_traffic = np.loadtxt("traffic_ground_truth.csv", delimiter=",")
-v_circuit = np.loadtxt("circuit_analog_voltage.csv", delimiter=",")
-
-# Compute Pearson Correlation & MAE
-r_val, _ = pearsonr(q_traffic, v_circuit)
-mae = np.mean(np.abs(q_traffic - v_circuit)) / np.max(q_traffic) * 100
-
-print(f"--- VALIDATION RESULTS ---")
-print(f"Pearson Correlation (r): {r_val:.4f}")
-print(f"Mean Absolute Error:     {mae:.2f}%")
-
-if r_val >= 0.90 and mae <= 15.0:
-    print(">>> PASS: Analogy is mathematically robust! Proceed to Hardware.")
-else:
-    print(">>> FAIL: Divergence detected. Adjust R/C scaling.")`,
-    },
-    keyPitfallToAvoid:
-      "If correlation is low, check whether your green/red timing offset between traffic and gate PWM is out of phase.",
-    verificationGate: "Pearson r ≥ 0.90 with zero unmodeled phase lags.",
-  },
-  {
-    stepNumber: 4,
-    title: "Building the $100 Hardware Prototype",
-    badge: "Phase 4: Physical Hardware",
-    timeframe: "Weeks 3–5",
+    title: "Breadboard Physical RC Circuit & ADC Telemetry",
+    badge: "Phase 3: Hardware Baseline",
+    timeframe: "Days 8–9 (2 Days)",
     difficulty: "Hardware / Lab",
-    costEstimate: "$100 – $150 USD Total",
+    costEstimate: "₹500 / $6 (Standard Lab Parts)",
     summary:
-      "Take your validated circuit and wire it on a breadboard or perfboard using cheap, off-the-shelf electronic parts. Hook up an Arduino or STM32 to generate PWM gate pulses and watch the queue charge on an oscilloscope.",
+      "Wire the calibrated RC circuit on a breadboard using standard lab parts scaled to safe low-voltage levels (12V DC). Use an Arduino analog pin (A0) to log capacitor voltage V(t) in real time to your serial monitor.",
     howToStart: [
-      "Order parts: 1x STM32 / Arduino ($15), 4x IRLZ44N logic-level MOSFETs ($6), 4x 1N5822 Schottky diodes ($2), 4x 1000µF capacitors ($3), 4x 0.1Ω shunt resistors ($2), 12V 2A DC supply ($10).",
-      "Wire the MOSFET source to ground, gate to Arduino digital pin via 100Ω resistor, and drain to capacitor buffer.",
-      "Flash the Arduino C++ firmware snippet below to pulse the gates.",
-      "Connect an oscilloscope or multimeter across the capacitor to observe real-time queue voltage.",
+      "Gather: 1x 1000 µF electrolytic capacitor, 1x 10 kΩ resistor (or values scaled from Phase 2), 1x 12V DC power supply, 1x breadboard, Arduino Uno.",
+      "Connect the resistor in series with the capacitor buffer to ground.",
+      "Connect Arduino pin A0 across the capacitor with ground connected to Arduino GND.",
+      "Open Arduino Serial Plotter at 115200 baud to view live charging/discharging curves.",
     ],
     exactCodeOrCommands: {
       language: "cpp",
-      title: "signal_controller.ino (Arduino / STM32 Firmware)",
-      code: `// Arduino Firmware for 2-Phase Traffic Signal Switching
-const int PIN_GATE_NS = 9;   // MOSFET Gate for North-South
-const int PIN_GATE_EW = 10;  // MOSFET Gate for East-West
-const int PIN_ADC_QUEUE = A0;// Analog read of capacitor voltage
-
-const unsigned long T_GREEN = 5000; // 5s green in lab demo
-const unsigned long T_CLEAR = 1000; // 1s all-red clearance
+      title: "analog_rc_logger.ino (Capacitor Voltage Streamer)",
+      code: `// Arduino ADC Logger for Breadboard RC Queue Circuit
+const int ADC_PIN = A0;
+const float V_REF = 5.0; // 5V Arduino ADC reference
 
 void setup() {
-  pinMode(PIN_GATE_NS, OUTPUT);
-  pinMode(PIN_GATE_EW, OUTPUT);
   Serial.begin(115200);
 }
 
 void loop() {
-  // Phase 1: NS Green
-  digitalWrite(PIN_GATE_NS, HIGH);
-  digitalWrite(PIN_GATE_EW, LOW);
-  delay(T_GREEN);
+  int rawADC = analogRead(ADC_PIN);
+  float voltage = (rawADC / 1023.0) * V_REF;
   
-  // Clearance: All Red
-  digitalWrite(PIN_GATE_NS, LOW);
-  delay(T_CLEAR);
+  // Output format: Timestamp_ms, Voltage_V
+  Serial.print(millis());
+  Serial.print(",");
+  Serial.println(voltage, 3);
   
-  // Phase 2: EW Green
-  digitalWrite(PIN_GATE_EW, HIGH);
-  delay(T_GREEN);
-  
-  // Clearance: All Red
-  digitalWrite(PIN_GATE_EW, LOW);
-  delay(T_CLEAR);
-  
-  // Read and stream live queue voltage
-  int val = analogRead(PIN_ADC_QUEUE);
-  float voltage = val * (5.0 / 1023.0);
-  Serial.println(voltage);
+  delay(100); // 10 Hz sampling rate
 }`,
     },
     keyPitfallToAvoid:
-      "Always put freewheeling Schottky diodes (1N5822) across the switch terminals to clamp inductive voltage spikes when the switch turns off.",
-    verificationGate: "Oscilloscope displays clean sawtooth charging waveform with zero thermal runaway.",
+      "Ensure the breadboard circuit ground is securely connected to the Arduino GND pin, otherwise ADC readings will float unpredictably.",
+    verificationGate: "Serial Monitor streams stable voltage waveform that charges and discharges smoothly.",
+  },
+  {
+    stepNumber: 4,
+    title: "2-Switch Arduino + MOSFET Intersection Demo",
+    badge: "Phase 4: Switched System Demo",
+    timeframe: "Days 10–12 (3 Days)",
+    difficulty: "Hardware / Lab",
+    costEstimate: "₹1,000 / $12 (2 MOSFETs + Diodes)",
+    summary:
+      "Wire 2 N-channel MOSFETs (IRFZ44N) driven by Arduino digital pins 9 and 10 to alternate between North-South and East-West discharge paths. Sweep 2–3 duty ratios (50/50, 70/30) to demonstrate throughput control.",
+    howToStart: [
+      "Insert 2x IRFZ44N MOSFETs on breadboard: Drain to respective RC branches, Source to GND.",
+      "Connect Gate pins to Arduino digital pins 9 and 10 via 100 Ω current-limiting resistors.",
+      "Place 1N4007 / 1N5822 diodes across switches to protect against voltage spikes.",
+      "Flash the firmware below to test 50/50 and 70/30 duty ratios, and log total current discharged.",
+    ],
+    exactCodeOrCommands: {
+      language: "cpp",
+      title: "arduino_2switch_intersection.ino (Dual MOSFET Gate Driver)",
+      code: `// 2-Switch Traffic Intersection Gate Driver
+const int PIN_MOSFET_NS = 9;   // North-South Gate
+const int PIN_MOSFET_EW = 10;  // East-West Gate
+const int PIN_ADC_QUEUE = A0;  // Voltage monitor
+
+// Test Configurations: 50/50 vs 70/30 Duty Ratios
+const unsigned long T_CYCLE = 6000; // 6s cycle in lab demo
+unsigned long t_green_NS = 3000;    // 3s green (50% duty)
+const unsigned long T_CLEAR = 300;  // 0.3s all-red clearance
+
+void setup() {
+  pinMode(PIN_MOSFET_NS, OUTPUT);
+  pinMode(PIN_MOSFET_EW, OUTPUT);
+  Serial.begin(115200);
+}
+
+void loop() {
+  // Phase 1: NS Conduction (Green Light)
+  digitalWrite(PIN_MOSFET_NS, HIGH);
+  digitalWrite(PIN_MOSFET_EW, LOW);
+  delay(t_green_NS);
+  
+  // Clearance: All Switches Open (All-Red)
+  digitalWrite(PIN_MOSFET_NS, LOW);
+  delay(T_CLEAR);
+  
+  // Phase 2: EW Conduction (Green Light)
+  digitalWrite(PIN_MOSFET_EW, HIGH);
+  delay(T_CYCLE - t_green_NS - (2 * T_CLEAR));
+  
+  // Clearance: All Switches Open (All-Red)
+  digitalWrite(PIN_MOSFET_EW, LOW);
+  delay(T_CLEAR);
+  
+  // Telemetry stream
+  float vQueue = analogRead(PIN_ADC_QUEUE) * (5.0 / 1023.0);
+  Serial.print("Queue_Voltage:");
+  Serial.println(vQueue);
+}`,
+    },
+    keyPitfallToAvoid:
+      "Do not switch faster than 1 Hz in your demo. Keeping cycle times at 6–60 seconds ensures visible and measurable charging on multimeter/ADC.",
+    verificationGate: "Dual MOSFETs alternate cleanly on breadboard with visible LED gate status.",
   },
   {
     stepNumber: 5,
-    title: "Perturbation Tests, Coimbatore Corridor & Paper Publication",
-    badge: "Phase 5: Research Impact",
-    timeframe: "Month 2–6",
+    title: "Sim-to-Circuit Statistical Validation (RMSE & Pearson r)",
+    badge: "Phase 5: Results & Report",
+    timeframe: "Days 13–19 (7 Days)",
     difficulty: "Intermediate",
-    costEstimate: "$0 (Open Data + Paper Writing)",
+    costEstimate: "$0 (Python Analysis + Report)",
     summary:
-      "Execute the 6 disturbance experiments (N-1 road closure, rush hour surge, stuck signal). Ingest real road geometries from the Avinashi Road corridor in Coimbatore. Write and submit your findings to IEEE Transactions.",
+      "Run the statistical validation script below to compare SUMO ground truth against your calibrated circuit. Compute Root Mean Square Error (RMSE) and Pearson correlation coefficient r to give your report one unshakeable, honest scientific metric.",
     howToStart: [
-      "Run the 6 canonical experiments: simulate a road block by cutting a switch wire, and observe how the upstream capacitor voltage spikes.",
-      "Download OpenStreetMap road geometry for Coimbatore Avinashi Road and convert to SUMO `.net.xml` using `netconvert`.",
-      "Apply the 5-tier data provenance badges: `MEASURED` (timings), `ESTIMATED` (turning splits).",
-      "Draft paper following IEEE Transactions on Intelligent Transportation Systems (T-ITS) format.",
+      "Load `sumo_queue.csv` and `circuit_fitted_voltage.csv` in Python.",
+      "Run the script below to compute Pearson r and RMSE.",
+      "If r ≥ 0.85 and RMSE is low, paste the numerical results directly into your results chapter!",
+      "If physical hardware breaks, activate the Fallback Plan: present SUMO + LTspice + RMSE as your complete project.",
     ],
     exactCodeOrCommands: {
-      language: "bash",
-      title: "coimbatore_osm_pipeline.sh (Real-World Corridor Ingestion)",
-      code: `# 1. Download Avinashi Road bounding box from OpenStreetMap
-wget -O avinashi_road.osm "https://api.openstreetmap.org/api/0.6/map?bbox=76.98,11.00,77.02,11.03"
+      language: "python",
+      title: "validate_rmse_correlation.py (Final Deliverable Metric)",
+      code: `import numpy as np
+from scipy.stats import pearsonr
 
-# 2. Convert to SUMO network format with netconvert
-netconvert --osm-files avinashi_road.osm --output-file avinashi.net.xml --geometry.remove --roundabouts.guess
+# Load Datasets
+q_sumo = np.loadtxt("sumo_queue.csv", delimiter=",")
+v_circuit = np.loadtxt("circuit_fitted_voltage.csv", delimiter=",")
 
-# 3. Generate random background traffic demand with python
-python $SUMO_HOME/tools/randomTrips.py -n avinashi.net.xml -e 3600 -l --trip-attributes="departLane='best' departSpeed='max'" -o avinashi.trips.xml
+# Align lengths
+min_len = min(len(q_sumo), len(v_circuit))
+q_sumo = q_sumo[:min_len]
+v_circuit = v_circuit[:min_len]
 
-# 4. Run co-simulation and export queue logs
-sumo -c avinashi.sumocfg --fcd-output avinashi_telemetry.xml`,
+# 1. Pearson Correlation Coefficient (r)
+r_val, p_val = pearsonr(q_sumo, v_circuit)
+
+# 2. Root Mean Square Error (RMSE)
+rmse = np.sqrt(np.mean((q_sumo - v_circuit) ** 2))
+
+# 3. Normalized Mean Absolute Error (NMAE)
+nmae = (np.mean(np.abs(q_sumo - v_circuit)) / np.max(q_sumo)) * 100.0
+
+print("==========================================")
+print("  FINAL SCIENTIFIC VALIDATION METRICS     ")
+print("==========================================")
+print(f"Pearson Correlation (r):  {r_val:.4f}  (Target: > 0.85)")
+print(f"P-Value:                  {p_val:.2e}")
+print(f"Root Mean Square Error:   {rmse:.3f} vehicles/V")
+print(f"Normalized MAE:           {nmae:.2f}%")
+print("==========================================")
+
+if r_val >= 0.85:
+    print(">>> VERDICT: ANALOGY VALIDATED WITH HIGH STATISTICAL CONFIDENCE.")
+else:
+    print(">>> VERDICT: MODERATE CORRELATION. Check phase offset alignment.")`,
     },
     keyPitfallToAvoid:
-      "Never pass off assumed parameters as empirical measurements. Always state provenance clearly to avoid peer-review rejection.",
-    verificationGate: "Complete manuscript ready for submission with hardware photos and correlation plots.",
+      "State limitations honestly! Mention that turning movements, driver psychology, and multi-node KVL failures were deliberately scoped out, not overlooked.",
+    verificationGate: "Pearson r and RMSE computed and ready to insert into final report and presentation slides.",
   },
 ];
+
 
