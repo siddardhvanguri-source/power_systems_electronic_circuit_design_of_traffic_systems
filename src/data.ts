@@ -8,7 +8,9 @@
 export const SECTIONS = [
   { id: "title", label: "BRIEF", marker: "§0" },
   { id: "execution-guide", label: "EXECUTE", marker: "§EXEC" },
-  { id: "objectives", label: "GOALS", marker: "§1" },
+  { id: "ontology-layers", label: "5-LAYERS", marker: "§1A" },
+  { id: "traffic-dictionary", label: "DICTIONARY", marker: "§1B" },
+  { id: "objectives", label: "GOALS", marker: "§1C" },
   { id: "decision-matrix", label: "MAPPINGS", marker: "§2" },
   { id: "dimensional", label: "DIMENSIONS", marker: "§3" },
   { id: "math-models", label: "MATH", marker: "§4" },
@@ -16,12 +18,353 @@ export const SECTIONS = [
   { id: "circuit-design", label: "CIRCUITS", marker: "§6" },
   { id: "hardware-bom", label: "HARDWARE", marker: "§7" },
   { id: "experiments", label: "BENCH", marker: "§8" },
-  { id: "first-experiment", label: "5-NODE DEMO", marker: "§9" },
+  { id: "avinashi-testbed", label: "COIMBATORE", marker: "§9A" },
+  { id: "first-experiment", label: "5-NODE DEMO", marker: "§9B" },
   { id: "risk-register", label: "RISKS", marker: "§10" },
   { id: "roadmap-budget", label: "ROADMAP", marker: "§11" },
   { id: "novelty-checklist", label: "NOVELTY", marker: "§12" },
   { id: "prior-art-patents", label: "PATENTS", marker: "§13" },
 ];
+
+export interface OntologyLayer {
+  layerId: string;
+  name: string;
+  title: string;
+  powerSystemRole: string;
+  powerElectronicsRole: string;
+  elements: string[];
+  keyInsight: string;
+}
+
+export const ONTOLOGY_LAYERS: OntologyLayer[] = [
+  {
+    layerId: "Layer A",
+    name: "Physical Infrastructure",
+    title: "Network Topology & Physical Interconnections",
+    powerSystemRole: "Buses, Branches, Transmission Lines & Substation Layouts",
+    powerElectronicsRole: "Busbar Matrix, Converter Topologies & Conduction Paths",
+    elements: ["Road Segment", "Lane", "Intersection", "Flyover / Elevated Bridge", "U-Turn", "Roundabout", "Merge", "Divergence"],
+    keyInsight: "Forms the static geometric graph G = (V, E). In power networks this maps to bus-branch incidence matrices (A) and nodal admittance graphs.",
+  },
+  {
+    layerId: "Layer B",
+    name: "Traffic State Dynamics",
+    title: "Dynamic Flow Variables & Conservation Quantities",
+    powerSystemRole: "Current (I), Voltage (V), Reactive Charge (Q), Impedance (Z)",
+    powerElectronicsRole: "DC-Link Capacitor Voltage, Inductor Current, Thermal Losses",
+    elements: ["Vehicle Count", "Flow Rate (q)", "Density (k)", "Speed (v)", "Queue Length (x)", "Travel Time (T)", "Occupancy"],
+    keyInsight: "The core mathematical isomorphism: Vehicle conservation dq/dt = a(t) - d(t) maps identically to capacitor charging C · dV/dt = I_in - I_out.",
+  },
+  {
+    layerId: "Layer C",
+    name: "Actuation & Control Layer",
+    title: "Dynamic Topology Modulators & Phase Switching",
+    powerSystemRole: "Circuit Breakers, FACTS Devices, Static VAR Compensators",
+    powerElectronicsRole: "Semiconductor Gate Drivers (PWM Duty D, FCS-MPC Switching u_k)",
+    elements: ["Traffic Signals (4 Levels)", "Ramp Meters", "Variable Speed Limits (VSL)", "Reversible Lane Control", "Dynamic Route Guidance"],
+    keyInsight: "Traffic signals do NOT simply throttle flow like resistors; they actively reconfigure the permissible network flow topology S(t) in discrete switching states.",
+  },
+  {
+    layerId: "Layer D",
+    name: "Disturbances & Contingencies",
+    title: "System Exogenous Shocks & Fault Dynamics",
+    powerSystemRole: "N-1 Branch Trips, Short-Circuit Faults, Generator Drops",
+    powerElectronicsRole: "Converter Thermal Runaway, Overcurrent Faults, Voltage Sags",
+    elements: ["Accident / Crash", "Lane / Road Closure", "Rain / Wet Road Friction Loss", "Pedestrian Surge", "Emergency Priority Vehicle", "Signal Power Outage"],
+    keyInsight: "Power systems has a 70-year mature mathematical language for N-1 contingency screening and fast post-fault topological redispatch.",
+  },
+  {
+    layerId: "Layer E",
+    name: "Optimization Objectives",
+    title: "Multi-Objective Performance & Stability Criteria",
+    powerSystemRole: "Optimal Power Flow (OPF), Loss Minimization, Voltage Stability",
+    powerElectronicsRole: "THD Minimization, Switching Loss Penalty, DC Ripple Attenuation",
+    elements: ["Minimize Total Queue Delay", "Minimize Grid Travel Time", "Prevent Spillback Cascade", "Ensure Phase Minimum Dwell Guard", "Maximize Network Throughput"],
+    keyInsight: "Formulates traffic optimization as switched energy-loss minimization with semiconductor switching chatter penalties (lambda_sw · ||Delta u||^2).",
+  },
+];
+
+export interface DictionaryEntry {
+  trafficElement: string;
+  trafficBehavior: string;
+  powerSystemRep: string;
+  powerElectronicsRep: string;
+  mathAnalogy: string;
+  whyMakesSense: string;
+  whereItBreaks: string;
+  evaluationStatus: "Strong (Validated)" | "Moderate (Plausible)" | "Caution (Weak)" | "Boundary (Non-Physical)";
+}
+
+export const TRAFFIC_DICTIONARY: DictionaryEntry[] = [
+  {
+    trafficElement: "Vehicle Packet",
+    trafficBehavior: "Discrete moving agent carrying human passengers",
+    powerSystemRep: "Quantized current charge packet (q_e)",
+    powerElectronicsRep: "Packetized charge pulse (Coulombs)",
+    mathAnalogy: "Q_e = k · n_veh,  I(t) = dQ/dt = k · a(t)",
+    whyMakesSense: "Aggregate traffic streams behave macroscopically like continuous fluid or charge flows.",
+    whereItBreaks: "Individual human drivers have agency, route preferences, and stochastic braking; electrons obey deterministic Maxwell-Lorentz forces.",
+    evaluationStatus: "Moderate (Plausible)",
+  },
+  {
+    trafficElement: "Vehicle Arrival (Demand)",
+    trafficBehavior: "Inflow injected into the network from origins/zones",
+    powerSystemRep: "Independent Current Injection (I_src)",
+    powerElectronicsRep: "Controlled Current Source (Buck/Boost Input)",
+    mathAnalogy: "I_src(t) = k · lambda(t)  [Amperes]",
+    whyMakesSense: "Exogenous trip generation acts as an unconstrained flow pump driving cars into entry links.",
+    whereItBreaks: "Arrival rate may throttle back if upstream entry is severely jammed (spillback blocking the source).",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Vehicle Departure (Sink)",
+    trafficBehavior: "Outflow leaving the network at destinations",
+    powerSystemRep: "Ground Reference / Resistive Sink",
+    powerElectronicsRep: "Matched Load Resistor / Energy Dissipation",
+    mathAnalogy: "I_out(t) = V_exit / R_term",
+    whyMakesSense: "Vehicles reaching trip completion exit the dynamic tracking equations permanently.",
+    whereItBreaks: "Assumes sink has infinite exit capacity without parking/off-ramp bottlenecks.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Road Segment",
+    trafficBehavior: "Physical conduit transporting vehicles between nodes",
+    powerSystemRep: "Transmission Line / Branch (R-L series)",
+    powerElectronicsRep: "Conduction Branch with Series Impedance",
+    mathAnalogy: "Delta V_e = R_e · I_e + L_e · (dI_e/dt)",
+    whyMakesSense: "Free-flow travel time creates an impedance to flow; vehicle acceleration inertia mirrors inductance.",
+    whereItBreaks: "In hyper-congested regimes, flow drops as density rises (apparent negative resistance). Naive Ohm's law fails without saturation bounds.",
+    evaluationStatus: "Moderate (Plausible)",
+  },
+  {
+    trafficElement: "Road Capacity",
+    trafficBehavior: "Maximum sustainable flow before breakdown",
+    powerSystemRep: "Branch Thermal / Ampacity Rating (I_max)",
+    powerElectronicsRep: "Semiconductor Current Limit / Saturation",
+    mathAnalogy: "I_e(t) <= I_max = k · C_road  [Amperes]",
+    whyMakesSense: "Hard upper boundary on link throughput, exactly mirroring semiconductor current ratings.",
+    whereItBreaks: "Traffic capacity drops during stop-and-go breakdowns (capacity drop phenomenon), whereas wire ampacity is static.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Vehicle Queue",
+    trafficBehavior: "Accumulation of waiting vehicles on link approaches",
+    powerSystemRep: "Capacitive Storage / Energy Buffer (C)",
+    powerElectronicsRep: "DC-Link Capacitor Voltage Buffer",
+    mathAnalogy: "C · (dV/dt) = I_in - I_out <=> k · (dq/dt) = a(t) - d(t)",
+    whyMakesSense: "Exact 1:1 mathematical isomorphism between flow continuity and Kirchhoff's Current Law across a capacitor.",
+    whereItBreaks: "Capacitor discharge is energy-reversible; traffic queue dissipation is irreversible (lost travel delay is permanently dissipated).",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Traffic Signal (Overall)",
+    trafficBehavior: "Time-multiplexed right-of-way allocator",
+    powerSystemRep: "Network Reconfiguration Actuator / Circuit Breaker",
+    powerElectronicsRep: "Multi-Leg Semiconductor Matrix Converter",
+    mathAnalogy: "Y(t) = A^T · diag(u_e(t) · g_e) · A,  u_e in {0, 1}",
+    whyMakesSense: "Signals modulate permissible connection paths discretely rather than acting as linear analog throttles.",
+    whereItBreaks: "Must enforce minimum green dwell (>=7s) and yellow clearance (>=3s) to respect human psychophysics.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Green Phase",
+    trafficBehavior: "Permits unobstructed vehicle movement",
+    powerSystemRep: "Closed Bus-Tie / Conduction Path",
+    powerElectronicsRep: "MOSFET Gate Drive ON (V_gs > V_th)",
+    mathAnalogy: "u_phase(t) = 1,  R_switch = R_on ~ 0 Ohms",
+    whyMakesSense: "Direct conductive state allowing current to flow across intersection node.",
+    whereItBreaks: "Discharge rate is limited by saturation headway (~1.8–2.0 s/veh), not zero resistance.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Red Phase",
+    trafficBehavior: "Blocks vehicle movement completely",
+    powerSystemRep: "Open Circuit / Tripped Breaker",
+    powerElectronicsRep: "MOSFET Gate Drive OFF (V_gs = 0V)",
+    mathAnalogy: "u_phase(t) = 0,  R_switch = R_off ~ Infinity",
+    whyMakesSense: "Zero current conduction across approach boundary.",
+    whereItBreaks: "Right turns on red or illegal creep violations introduce minor leakage currents.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Yellow + All-Red Phase",
+    trafficBehavior: "Safety transition clearance interval",
+    powerSystemRep: "Dead-Time / Breaker Arc Extinction",
+    powerElectronicsRep: "Semiconductor Dead-Time & Switching Loss",
+    mathAnalogy: "Lost Time Penalty = lambda_sw · ||u(k) - u(k-1)||^2",
+    whyMakesSense: "Captures lost capacity during phase transitions exactly like dead-time in bridge converters.",
+    whereItBreaks: "Dilemma zone behavior where aggressive drivers accelerate while cautious drivers stop.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "U-Turn Movement",
+    trafficBehavior: "Reverses vehicle direction into opposite carriageway",
+    powerSystemRep: "Bidirectional Controlled Branch",
+    powerElectronicsRep: "Bidirectional Converter (Dual-Active Bridge Switch)",
+    mathAnalogy: "I_rev(t) = Gate_uturn(t) · min(q_uturn, I_sat_uturn)",
+    whyMakesSense: "Injects recirculating current back into the adjacent upstream branch.",
+    whereItBreaks: "U-turns have severe turning radius geometry constraints and depend heavily on opposing gap acceptance.",
+    evaluationStatus: "Moderate (Plausible)",
+  },
+  {
+    trafficElement: "3-Way Unsignalized Junction",
+    trafficBehavior: "Passive merge/diverge node with priority rules",
+    powerSystemRep: "Multi-Port Passive Node with Voltage Drops",
+    powerElectronicsRep: "Uncontrolled Diode OR-ing Network",
+    mathAnalogy: "I_out = I_main + I_side · Gate_gap(V_main)",
+    whyMakesSense: "Flow joins main stream only when main flow leaves sufficient headway gaps.",
+    whereItBreaks: "Driver courtesy, creeping, and aggressive gap-forcing cannot be captured by passive diodes.",
+    evaluationStatus: "Moderate (Plausible)",
+  },
+  {
+    trafficElement: "4-Way Signalized Intersection",
+    trafficBehavior: "Multi-approach conflicting movement coordinator",
+    powerSystemRep: "Multi-Port Switched Bus Node",
+    powerElectronicsRep: "4-Leg H-Bridge / Matrix Converter",
+    mathAnalogy: "Sum u_competing(t) <= 1  (Safety Non-Conflict Constraint)",
+    whyMakesSense: "Direct hardware mapping to converter switching topologies with interlock guards.",
+    whereItBreaks: "Pedestrian conflicts and unprotected right-turn filter movements require multi-layer sub-models.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Roundabout",
+    trafficBehavior: "Self-regulating circular circulating flow ring",
+    powerSystemRep: "Ring Bus / Closed Loop Mesh Network",
+    powerElectronicsRep: "Circulating Current Modular Converter Ring",
+    mathAnalogy: "I_circ(t) = Sum I_entry - Sum I_exit,  I_entry <= f(I_circ)",
+    whyMakesSense: "Yield-at-entry rule modulates incoming current based on circulating loop current.",
+    whereItBreaks: "Severe asymmetric demand can lock the roundabout (circulating gridlock), causing non-linear collapse.",
+    evaluationStatus: "Moderate (Plausible)",
+  },
+  {
+    trafficElement: "Flyover / Elevated Expressway",
+    trafficBehavior: "Grade-separated bypass carrying through-traffic",
+    powerSystemRep: "High-Voltage Direct Parallel Bypass Branch",
+    powerElectronicsRep: "Low-Impedance Parallel Conduction Path (DC Bus)",
+    mathAnalogy: "R_flyover << R_surface,  I_total = I_flyover + I_surface",
+    whyMakesSense: "Diverts major through-traffic volume past surface signalized intersections.",
+    whereItBreaks: "Entry/exit ramp bottlenecks can spill back onto the surface network or elevated deck.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Lane Merge",
+    trafficBehavior: "Two incoming traffic streams join into one",
+    powerSystemRep: "Kirchhoff Current Summation Node",
+    powerElectronicsRep: "Parallel Converter Current Sharing Junction",
+    mathAnalogy: "I_merged(t) = min(I_1(t) + I_2(t), I_max_downstream)",
+    whyMakesSense: "Flow continuity preserves vehicle count during merging.",
+    whereItBreaks: "Zip-merging etiquette varies widely; aggressive merging creates shockwave waves upstream.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Lane Divergence / Split",
+    trafficBehavior: "One approach splits into multiple destination links",
+    powerSystemRep: "Current Divider Network",
+    powerElectronicsRep: "Demultiplexed Current Routing Branch",
+    mathAnalogy: "I_1 = beta_1 · I_in,  I_2 = (1 - beta_1) · I_in",
+    whyMakesSense: "Flow splits according to turning fraction beta.",
+    whereItBreaks: "A queue on one turning lane can block vehicles wishing to use the open adjacent lane (lane spillback).",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Accident / Sudden Blockage",
+    trafficBehavior: "Abrupt reduction or total elimination of lane capacity",
+    powerSystemRep: "Transmission Line Short-Circuit / Branch Trip",
+    powerElectronicsRep: "Power MOSFET Hard Fault / Thermal Shutdown",
+    mathAnalogy: "I_max_fault(t) = (1 - eta_block) · I_max_nominal",
+    whyMakesSense: "Triggers immediate upstream current bottleneck and voltage (queue) spike.",
+    whereItBreaks: "Rubbernecking delays occur in opposite unaffected lanes due to human visual distraction.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Emergency Vehicle Priority",
+    trafficBehavior: "Ambulance/Fire engine preempts normal signal phases",
+    powerSystemRep: "Critical / High-Priority Emergency Load Injection",
+    powerElectronicsRep: "Hardware Interrupt / Master Override Gate Pulse",
+    mathAnalogy: "u_emergency = 1,  u_all_others = 0  (Instant Preemption)",
+    whyMakesSense: "Directly mirrors emergency tripping and critical load shedding protocols in power grids.",
+    whereItBreaks: "Post-preemption recovery transient can take multiple signal cycles to dissipate background queues.",
+    evaluationStatus: "Strong (Validated)",
+  },
+  {
+    trafficElement: "Spillback (Gridlock Cascade)",
+    trafficBehavior: "Downstream queue grows to block upstream intersection",
+    powerSystemRep: "Cascading Branch Overload / Voltage Collapse",
+    powerElectronicsRep: "Capacitor Overvoltage Breakdown / Converter Saturation",
+    mathAnalogy: "V_downstream >= V_jam ==> I_upstream_exit -> 0",
+    whyMakesSense: "Voltage saturation propagates backwards through the network graph.",
+    whereItBreaks: "Physical vehicle length (geometry) causes physical blockages that cannot be resolved without reverse clearing.",
+    evaluationStatus: "Strong (Validated)",
+  },
+];
+
+export interface CoimbatoreNodeSpec {
+  nodeId: string;
+  name: string;
+  location: string;
+  trafficType: string;
+  electricalAnalog: string;
+  features: string;
+  empiricalDemand: string;
+}
+
+export const AVINASHI_TESTBED_NODES: CoimbatoreNodeSpec[] = [
+  {
+    nodeId: "Node 1",
+    name: "Puliakulam – Avinashi Junction",
+    location: "Avinashi Road Western Origin",
+    trafficType: "4-Way Major Signalized Intersection",
+    electricalAnalog: "Multi-Port Switched Inflow Hub (H-Bridge Inverter)",
+    features: "High-volume feeder from central Coimbatore railway/bus corridors.",
+    empiricalDemand: "~1,850 PCU/h Peak Inflow",
+  },
+  {
+    nodeId: "Node 2",
+    name: "Lakshmi Mills Junction",
+    location: "Avinashi Road / PN Palayam Cross",
+    trafficType: "Heavy 4-Way Multi-Phase Signal",
+    electricalAnalog: "Multi-Leg Matrix Switching Converter",
+    features: "Frequent phase changes, pedestrian surges, and commercial side-road inflows.",
+    empiricalDemand: "~2,200 PCU/h High-Density Hub",
+  },
+  {
+    nodeId: "Node 3",
+    name: "Nava India Junction",
+    location: "Avinashi Road Mid-Corridor",
+    trafficType: "Signalized Intersection + Dedicated U-Turn Bay",
+    electricalAnalog: "Switched Bus + Bidirectional Branch Converter",
+    features: "Major educational institution access with tight turning movement constraints.",
+    empiricalDemand: "~1,750 PCU/h Mixed Traffic",
+  },
+  {
+    nodeId: "Node 4",
+    name: "Peelamedu Arterial & G.D. Naidu Elevated Bypass",
+    location: "Peelamedu Core Corridor",
+    trafficType: "Grade-Separated Flyover Bypass + Surface Merge/Diverge Ramps",
+    electricalAnalog: "Parallel Low-Impedance DC Bypass + Buck/Boost Ramp Nodes",
+    features: "G.D. Naidu Elevated Corridor bypasses surface signals; ramps redistribute flow back.",
+    empiricalDemand: "~2,062 PCU/h (Empirically Documented Reference Baseline)",
+  },
+  {
+    nodeId: "Node 5",
+    name: "Anna Silai / PSG Tech Junction",
+    location: "Peelamedu Eastern Node",
+    trafficType: "Multi-Approach Signalized Hub",
+    electricalAnalog: "Multi-Port Switched Network Node",
+    features: "Heavy student pedestrian crossing and bus stop dwell loading.",
+    empiricalDemand: "~1,920 PCU/h Peak Demand",
+  },
+  {
+    nodeId: "Node 6",
+    name: "Uppilipalayam / LIC Terminal Node",
+    location: "Eastern Corridor Terminal",
+    trafficType: "Terminal Flow Dissipation / Arterial Exit",
+    electricalAnalog: "Matched Resistive Ground Sink / Network Exit Buffer",
+    features: "Distributes arterial traffic into bypass highways and eastern industrial zones.",
+    empiricalDemand: "~2,100 PCU/h Outflow Capacity",
+  },
+];
+
 
 export type Verdict = "strong" | "moderate" | "weak" | "open";
 export type ClassificationType = "Physical (A)" | "Functional (B)" | "Mathematical (C)" | "Control (D)" | "Conceptual (E)";

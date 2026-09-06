@@ -17,10 +17,16 @@ import {
   CUT_SCOPE_ITEMS,
   TWENTY_ONE_DAY_SCHEDULE,
   ONE_SENTENCE_DEFENSE,
+  ONTOLOGY_LAYERS,
+  TRAFFIC_DICTIONARY,
+  AVINASHI_TESTBED_NODES,
   type Verdict,
   type CandidateMapping,
   type TestScenario,
   type ExecutionStep,
+  type OntologyLayer,
+  type DictionaryEntry,
+  type CoimbatoreNodeSpec,
 } from "./data";
 
 // ─── TYPES & PAGES ────────────────────────────────────────────────────────────
@@ -353,6 +359,16 @@ function ResearchBriefPage({ onNavigateToImplementation }: { onNavigateToImpleme
         </div>
       </section>
 
+      {/* §1A 5-Layer Network Ontology & 4-Question Framework */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <OntologyLayersSection />
+      </section>
+
+      {/* §1B Comprehensive Traffic-to-Power Electronics Dictionary */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <TrafficDictionarySection />
+      </section>
+
       {/* §3 Dimensional Analysis & Interactive Scaler */}
       <section className="px-6 sm:px-12 max-w-6xl mx-auto">
         <DimensionalAnalysisSection />
@@ -361,6 +377,11 @@ function ResearchBriefPage({ onNavigateToImplementation }: { onNavigateToImpleme
       {/* §4 Mathematical Models */}
       <section className="px-6 sm:px-12 max-w-6xl mx-auto">
         <MathematicalModelsSection />
+      </section>
+
+      {/* §9A Avinashi Road (Peelamedu, Coimbatore) 6-Node Testbed */}
+      <section className="px-6 sm:px-12 max-w-6xl mx-auto">
+        <AvinashiTestbedSection />
       </section>
 
       {/* §10 Scientific Risk Register */}
@@ -789,6 +810,342 @@ function LiteraturePage() {
 }
 
 // ─── REUSABLE CORE SECTIONS (USED ACROSS PAGES) ───────────────────────────────
+
+function OntologyLayersSection() {
+  const [selectedLayerIdx, setSelectedLayerIdx] = useState<number>(0);
+  const activeLayer = ONTOLOGY_LAYERS[selectedLayerIdx];
+
+  return (
+    <div className="space-y-8">
+      <SectionHeader
+        n="§1A"
+        title="5-Layer System Decomposition & 4-Question Framework"
+        sub="Decomposing the urban traffic system into physical, state, control, disturbance, and objective layers before attempting circuit equivalence."
+      />
+
+      {/* 5-Layer Interactive Selector */}
+      <div className="border border-[rgba(30,27,22,0.1)] rounded-3xl p-6 sm:p-8 bg-white shadow-xs space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[rgba(30,27,22,0.08)]">
+          <div>
+            <Label>System Architecture Hierarchy</Label>
+            <h3 className="display text-[20px] font-medium text-[#1e1b16] mt-0.5">
+              5-Layer Structural Ontology
+            </h3>
+          </div>
+          <span className="data text-[10.5px] bg-[#d1ece0] text-[#1a5c36] px-3 py-1 rounded-full font-bold">
+            Systems Engineering Standard
+          </span>
+        </div>
+
+        {/* Layer Tabs */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          {ONTOLOGY_LAYERS.map((l, idx) => {
+            const isActive = selectedLayerIdx === idx;
+            return (
+              <button
+                key={l.layerId}
+                onClick={() => setSelectedLayerIdx(idx)}
+                className={`p-3.5 rounded-xl text-left transition-all border flex flex-col justify-between ${
+                  isActive
+                    ? "bg-[#2d6a4f] border-[#2d6a4f] text-white shadow-xs"
+                    : "bg-[#f8f6f1] border-[rgba(30,27,22,0.08)] text-[#4a4640] hover:bg-white"
+                }`}
+              >
+                <div className={`data text-[10px] font-bold uppercase ${isActive ? "text-[#d1ece0]" : "text-[#8a867e]"}`}>
+                  {l.layerId}
+                </div>
+                <div className={`text-[12px] font-semibold mt-1 leading-snug ${isActive ? "text-white" : "text-[#1e1b16]"}`}>
+                  {l.name}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active Layer Details */}
+        <div className="bg-[#fcfbf9] border border-[rgba(30,27,22,0.08)] rounded-2xl p-6 space-y-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h4 className="display text-[18px] font-medium text-[#1e1b16]">
+              {activeLayer.layerId}: {activeLayer.title}
+            </h4>
+            <span className="data text-[11px] text-[#2d6a4f] font-semibold">
+              {activeLayer.elements.length} Constituent Elements
+            </span>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-white space-y-1.5">
+              <Label>Power-Systems Perspective</Label>
+              <div className="text-[13px] text-[#2d6a4f] font-semibold">{activeLayer.powerSystemRole}</div>
+            </div>
+            <div className="border border-[rgba(30,27,22,0.08)] rounded-xl p-4 bg-white space-y-1.5">
+              <Label>Power-Electronics Perspective</Label>
+              <div className="text-[13px] text-[#1e40af] font-semibold">{activeLayer.powerElectronicsRole}</div>
+            </div>
+          </div>
+
+          <div>
+            <Label>Constituent Elements in this Layer</Label>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {activeLayer.elements.map((elem, idx) => (
+                <span key={idx} className="data text-[11px] bg-white border border-[rgba(30,27,22,0.1)] px-3 py-1 rounded-lg text-[#1e1b16] font-medium shadow-2xs">
+                  {elem}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-[#d1ece0]/25 border border-[#a7f3d0] rounded-xl p-4 text-[12.5px] text-[#065f46] leading-relaxed">
+            <strong className="font-bold block mb-0.5">Core Engineering Insight:</strong>
+            {activeLayer.keyInsight}
+          </div>
+        </div>
+      </div>
+
+      {/* 4-Question Evaluation Standard & 3-Model Methodology */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* The 4 Questions */}
+        <div className="border border-[rgba(30,27,22,0.1)] rounded-3xl p-6 sm:p-8 bg-white space-y-4 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#2d6a4f]" />
+            <Label>The 4-Question Scientific Filter</Label>
+          </div>
+          <h3 className="display text-[18px] font-medium text-[#1e1b16]">
+            Falsification Standard for Every Proposed Mapping
+          </h3>
+          <p className="text-[12.5px] text-[#4a4640] leading-relaxed">
+            Every traffic-to-circuit mapping hypothesis must answer these 4 questions affirmatively. If a mapping only "looks similar" without solving new problems, it is rejected:
+          </p>
+          <div className="space-y-2.5 text-[12px]">
+            <div className="bg-[#f8f6f1] p-3 rounded-xl border border-[rgba(30,27,22,0.06)]">
+              <strong className="text-[#1e1b16] font-bold">1. Physical Meaning:</strong> What does this traffic component actually do in reality?
+            </div>
+            <div className="bg-[#f8f6f1] p-3 rounded-xl border border-[rgba(30,27,22,0.06)]">
+              <strong className="text-[#1e1b16] font-bold">2. Mathematical Meaning:</strong> What exact differential/algebraic equation describes it?
+            </div>
+            <div className="bg-[#f8f6f1] p-3 rounded-xl border border-[rgba(30,27,22,0.06)]">
+              <strong className="text-[#1e1b16] font-bold">3. Electrical Equivalent:</strong> Can that exact equation be represented using electrical variables?
+            </div>
+            <div className="bg-[#f8f6f1] p-3 rounded-xl border border-[rgba(30,27,22,0.06)]">
+              <strong className="text-[#2d6a4f] font-bold">4. Engineering Usefulness:</strong> Does the electrical model allow us to solve congestion problems that classical models cannot?
+            </div>
+          </div>
+        </div>
+
+        {/* The 3-Model Simulation Pipeline */}
+        <div className="border border-[rgba(30,27,22,0.1)] rounded-3xl p-6 sm:p-8 bg-white space-y-4 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#1e40af]" />
+            <Label>The 3-Model Simulation Hierarchy</Label>
+          </div>
+          <h3 className="display text-[18px] font-medium text-[#1e1b16]">
+            Traffic First → Electrical Equivalent → PE Control
+          </h3>
+          <p className="text-[12.5px] text-[#4a4640] leading-relaxed">
+            Never begin by drawing MOSFETs blindly in SPICE. The project strictly follows this sequential 3-model verification pipeline:
+          </p>
+          <div className="space-y-3 text-[12px]">
+            <div className="border border-[rgba(30,27,22,0.08)] p-3 rounded-xl bg-[#f8f6f1] flex items-center justify-between">
+              <div>
+                <strong className="text-[#1e1b16] font-bold block">Model A — Traffic Network (SUMO / ODE)</strong>
+                <span className="text-[#8a867e] text-[11px]">Demand → Network topology → Queues & delay ground truth</span>
+              </div>
+              <span className="data text-[10px] bg-[#d1ece0] text-[#1a5c36] font-bold px-2 py-0.5 rounded">Model A</span>
+            </div>
+            <div className="border border-[rgba(30,27,22,0.08)] p-3 rounded-xl bg-[#f8f6f1] flex items-center justify-between">
+              <div>
+                <strong className="text-[#1e1b16] font-bold block">Model B — Electrical Equivalent (LTspice / Simscape)</strong>
+                <span className="text-[#8a867e] text-[11px]">Mapping equations → RLC equivalent circuit → Electrical response</span>
+              </div>
+              <span className="data text-[10px] bg-[#dbeafe] text-[#1e40af] font-bold px-2 py-0.5 rounded">Model B</span>
+            </div>
+            <div className="border border-[rgba(30,27,22,0.08)] p-3 rounded-xl bg-[#f8f6f1] flex items-center justify-between">
+              <div>
+                <strong className="text-[#1e1b16] font-bold block">Model C — Power-Electronic Controller (FCS-MPC)</strong>
+                <span className="text-[#8a867e] text-[11px]">Semiconductor switching decisions → Topology reconfiguration → Congestion comparison</span>
+              </div>
+              <span className="data text-[10px] bg-[#fde8c8] text-[#92400e] font-bold px-2 py-0.5 rounded">Model C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrafficDictionarySection() {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const filtered = useMemo(() => {
+    return TRAFFIC_DICTIONARY.filter((entry) => {
+      const matchesSearch =
+        entry.trafficElement.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.trafficBehavior.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.powerSystemRep.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.powerElectronicsRep.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "all" || entry.evaluationStatus.toLowerCase().includes(statusFilter.toLowerCase());
+      return matchesSearch && matchesStatus;
+    });
+  }, [searchTerm, statusFilter]);
+
+  const statusBadgeCls = (status: DictionaryEntry["evaluationStatus"]) => {
+    if (status.includes("Strong")) return "bg-[#d1ece0] text-[#1a5c36]";
+    if (status.includes("Moderate")) return "bg-[#dbeafe] text-[#1e40af]";
+    if (status.includes("Caution")) return "bg-[#fde8c8] text-[#92400e]";
+    return "bg-[#fdd5d5] text-[#b91c1c]";
+  };
+
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        n="§1B"
+        title="Traffic → Electrical & Power Electronics Mapping Dictionary"
+        sub="Comprehensive 20+ element hypothesis catalogue evaluating physical mechanisms, mathematical equations, and critical boundary failure conditions."
+      />
+
+      {/* Search and Filters */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-[rgba(30,27,22,0.1)]">
+        <div className="flex items-center gap-2 flex-1 max-w-md">
+          <span className="text-[#8a867e]">🔍</span>
+          <input
+            type="text"
+            placeholder="Search traffic elements (e.g. U-Turn, Signal, Queue, Flyover)..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-transparent text-[13px] text-[#1e1b16] outline-none placeholder:text-[#8a867e]"
+          />
+          {searchTerm && (
+            <button onClick={() => setSearchTerm("")} className="text-[#8a867e] hover:text-[#1e1b16] text-[11px] font-mono">
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {["all", "Strong", "Moderate", "Caution"].map((st) => (
+            <button
+              key={st}
+              onClick={() => setStatusFilter(st)}
+              className={`px-3 py-1 rounded-xl text-[11px] font-medium transition-all ${
+                statusFilter === st
+                  ? "bg-[#2d6a4f] text-white shadow-xs font-semibold"
+                  : "bg-[#f2efe8] text-[#4a4640] hover:bg-[#eae7df]"
+              }`}
+            >
+              {st === "all" ? `All (${TRAFFIC_DICTIONARY.length})` : st}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Dictionary Cards */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {filtered.map((entry, idx) => (
+          <div
+            key={idx}
+            className="border border-[rgba(30,27,22,0.09)] rounded-2xl p-5 bg-white shadow-2xs space-y-3 flex flex-col justify-between hover:border-[rgba(30,27,22,0.25)] transition-all"
+          >
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <h4 className="text-[15px] font-bold text-[#1e1b16]">{entry.trafficElement}</h4>
+                <span className={`data text-[9.5px] px-2.5 py-0.5 rounded-full font-bold shrink-0 ${statusBadgeCls(entry.evaluationStatus)}`}>
+                  {entry.evaluationStatus.split(" ")[0]}
+                </span>
+              </div>
+              <p className="text-[12px] text-[#4a4640] leading-snug">{entry.trafficBehavior}</p>
+
+              <div className="grid sm:grid-cols-2 gap-2 text-[11.5px] pt-1">
+                <div className="bg-[#f8f6f1] p-2.5 rounded-xl border border-[rgba(30,27,22,0.06)]">
+                  <div className="data text-[9.5px] text-[#2d6a4f] font-bold uppercase">Power System Rep</div>
+                  <div className="text-[#1e1b16] font-medium mt-0.5">{entry.powerSystemRep}</div>
+                </div>
+                <div className="bg-[#f8f6f1] p-2.5 rounded-xl border border-[rgba(30,27,22,0.06)]">
+                  <div className="data text-[9.5px] text-[#1e40af] font-bold uppercase">Power Electronics Rep</div>
+                  <div className="text-[#1e1b16] font-medium mt-0.5">{entry.powerElectronicsRep}</div>
+                </div>
+              </div>
+
+              <div className="bg-[#1e1b16] text-[#d1ece0] p-2.5 rounded-xl font-mono text-[11px] overflow-x-auto">
+                <code>{entry.mathAnalogy}</code>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 pt-2 border-t border-[rgba(30,27,22,0.06)] text-[11.5px]">
+              <div className="text-[#2d6a4f]">
+                <strong>Why it makes sense:</strong> {entry.whyMakesSense}
+              </div>
+              <div className="text-[#b91c1c]">
+                <strong>Where it breaks:</strong> {entry.whereItBreaks}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AvinashiTestbedSection() {
+  return (
+    <div className="space-y-6">
+      <SectionHeader
+        n="§9A"
+        title="Coimbatore Avinashi Road 6-Node Testbed Architecture"
+        sub="A realistic 6-node corridor in Coimbatore (Peelamedu) featuring elevated bypass flyovers, U-turns, merges, and signalized intersections."
+      />
+
+      <div className="border border-[rgba(30,27,22,0.1)] rounded-3xl p-6 sm:p-8 bg-white shadow-xs space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[rgba(30,27,22,0.08)]">
+          <div>
+            <Label>Empirical Testbed Selection</Label>
+            <h3 className="display text-[20px] font-medium text-[#1e1b16] mt-0.5">
+              Avinashi Road / Peelamedu Corridor (6-Node Subnetwork)
+            </h3>
+          </div>
+          <span className="data text-[11px] bg-[#d1ece0] text-[#1a5c36] px-3 py-1 rounded-full font-bold">
+            Baseline: ~2,062 PCU/h Reference Flow
+          </span>
+        </div>
+
+        <p className="text-[13px] text-[#4a4640] leading-relaxed max-w-4xl">
+          Rather than modeling an unmanageable 100-node metropolis, this 6-node subnetwork isolates the essential topological complexities: 
+          <strong> signalized intersections</strong>, <strong>dedicated U-turn bays</strong>, <strong>grade-separated flyovers (G.D. Naidu Elevated Expressway)</strong>, and <strong>ramp merges/diverges</strong>.
+        </p>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {AVINASHI_TESTBED_NODES.map((node) => (
+            <div key={node.nodeId} className="border border-[rgba(30,27,22,0.08)] rounded-2xl p-5 bg-[#f8f6f1] space-y-2.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="data text-[10px] text-[#2d6a4f] font-bold uppercase">{node.nodeId}</span>
+                  <span className="data text-[9.5px] bg-white border border-[rgba(30,27,22,0.1)] px-2 py-0.5 rounded text-[#4a4640] font-semibold">
+                    {node.empiricalDemand}
+                  </span>
+                </div>
+                <h4 className="text-[14px] font-bold text-[#1e1b16] mt-1">{node.name}</h4>
+                <div className="text-[11px] text-[#8a867e] font-mono">{node.location}</div>
+
+                <div className="space-y-1.5 mt-3 text-[11.5px]">
+                  <div>
+                    <strong className="text-[#1e1b16]">Traffic Type:</strong> {node.trafficType}
+                  </div>
+                  <div className="text-[#2d6a4f]">
+                    <strong>Electrical Equivalent:</strong> {node.electricalAnalog}
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-[#4a4640] leading-snug pt-2 border-t border-[rgba(30,27,22,0.06)]">
+                {node.features}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DecisionMatrixSection() {
   const [selectedCandidate, setSelectedCandidate] = useState<string>("intersection");
